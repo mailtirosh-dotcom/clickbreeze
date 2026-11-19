@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Review provider · ClickBreeze admin</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F5F5F4}
+a{color:#C2410C}a:hover{color:#9A3412}
+select,textarea{font:inherit}
+</style>
+
+<style>html{visibility:hidden}</style>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="auth.js"></script>
+<script>CB.guard();</script>
+</head>
+<body>
+
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F5F5F4}
+a{color:#C2410C}a:hover{color:#9A3412}
+select,textarea{font:inherit}
+</style>
+</helmet>
+<div style="font-family: Inter, sans-serif; color: #1C1917; background: #F5F5F4; min-height: 100vh; display: flex; flex-wrap: wrap">
+  <nav aria-label="Admin" style="flex: 1 1 240px; max-width: 100%; background: #1C1917; padding: 24px 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px">
+    <div style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: #FFFFFF; padding: 0 12px 24px">Click<span style="color: #FB923C">Breeze</span></div>
+    <a href="AdminDash.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Dashboard</a>
+    <a href="AdminList.html" aria-current="page" style="color: #FFFFFF; text-decoration: none; padding: 12px; border-radius: 8px; background: #44403C; font-weight: 600">Photographers &amp; studios</a>
+    <a href="enroll.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Enroll new</a>
+    <a href="AdminOrders.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Bids &amp; orders</a>
+    <a href="AdminDisputes.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Disputes &amp; refunds</a>
+    <a href="AdminSafety.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Safety flags</a>
+    <a href="AdminLocations.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Locations &amp; readiness</a>
+    <a href="AdminTeam.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Team &amp; audit log</a>
+    <a href="AdminSettings.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Settings</a>
+  </nav>
+  <main style="flex: 999 1 560px; min-width: 0; padding: 32px 40px 48px; box-sizing: border-box">
+    <div style="max-width: 1100px; display: flex; flex-direction: column; gap: 24px">
+      <div>
+        <p style="margin: 0 0 4px; font-size: 14px"><a href="AdminList.html">Photographers &amp; studios</a> / Review</p>
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px">
+          <h1 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700">[PHOTOGRAPHER NAME] <span style="padding: 4px 12px; border-radius: 999px; background: #FFEDD5; color: #9A3412; font-weight: 600; font-size: 14px; vertical-align: middle">Pending</span></h1>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+        <div style="flex: 2 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+          <section aria-labelledby="prof-h" style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 24px">
+            <h2 id="prof-h" style="margin: 0 0 12px; font-size: 18px; font-weight: 600">Profile</h2>
+            <dl style="margin: 0; display: grid; grid-template-columns: 160px 1fr; row-gap: 10px; font-size: 14px">
+              <dt style="color: #57534E">Type</dt><dd style="margin: 0">Individual photographer</dd>
+              <dt style="color: #57534E">Mobile</dt><dd style="margin: 0">+91 [MOBILE] · OTP verified</dd>
+              <dt style="color: #57534E">Location</dt><dd style="margin: 0">[TOWN], [DISTRICT], [STATE]</dd>
+              <dt style="color: #57534E">Experience</dt><dd style="margin: 0">[N] years</dd>
+              <dt style="color: #57534E">Categories</dt><dd style="margin: 0">Wedding, Birthday</dd>
+              <dt style="color: #57534E">Packages</dt><dd style="margin: 0">[PACKAGE NAME] from ₹[PRICE] · [N] delivery days</dd>
+              <dt style="color: #57534E">Registered</dt><dd style="margin: 0">Self-registered in the app on [DATE]</dd>
+            </dl>
+          </section>
+          <section aria-labelledby="docs-h" style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+            <h2 id="docs-h" style="margin: 0; font-size: 18px; font-weight: 600">Documents and portfolio</h2>
+            <div style="display: flex; flex-wrap: wrap; gap: 16px">
+              <div style="width: 220px; height: 140px; border-radius: 8px; border: 1px dashed #A8A29E; background: #F5F5F4; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #57534E; text-align: center; padding: 8px; box-sizing: border-box">ID proof (Aadhaar)<br>tap to enlarge</div>
+              <div style="flex: 1 1 280px; display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px">
+                <div style="aspect-ratio: 1; border-radius: 8px; background: #E7E5E4"></div>
+                <div style="aspect-ratio: 1; border-radius: 8px; background: #D6D3D1"></div>
+                <div style="aspect-ratio: 1; border-radius: 8px; background: #E7E5E4"></div>
+                <div style="aspect-ratio: 1; border-radius: 8px; background: #D6D3D1"></div>
+                <div style="aspect-ratio: 1; border-radius: 8px; background: #E7E5E4"></div>
+              </div>
+            </div>
+          </section>
+          <section aria-labelledby="dup-h" style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 10px">
+            <h2 id="dup-h" style="margin: 0; font-size: 18px; font-weight: 600">Duplicate and history checks</h2>
+            <div style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 8px; background: #F5F5F4; font-size: 14px"><span>Same ID proof on another account</span><span style="font-weight: 600">[None / N found]</span></div>
+            <div style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 8px; background: #F5F5F4; font-size: 14px"><span>Same phone or device on another account</span><span style="font-weight: 600">[None / N found]</span></div>
+            <div style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 8px; background: #F5F5F4; font-size: 14px"><span>Reports from customers (last 30 days)</span><span style="font-weight: 600">[N]</span></div>
+            <div style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 8px; background: #F5F5F4; font-size: 14px"><span>Customers who blocked this provider</span><span style="font-weight: 600">[N]</span></div>
+          </section>
+        </div>
+
+        <aside aria-label="Decision" style="flex: 1 1 300px; min-width: 0; background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+          <h2 style="margin: 0; font-size: 18px; font-weight: 600">Verification checklist</h2>
+          <label style="display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 14px"><input type="checkbox" checked style="width: 20px; height: 20px"> Name matches ID proof</label>
+          <label style="display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 14px"><input type="checkbox" checked style="width: 20px; height: 20px"> Mobile number OTP verified</label>
+          <label style="display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 14px"><input type="checkbox" style="width: 20px; height: 20px"> Portfolio looks original</label>
+          <label style="display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 14px"><input type="checkbox" style="width: 20px; height: 20px"> Location and service area confirmed</label>
+          <label style="display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 14px"><input type="checkbox" style="width: 20px; height: 20px"> Package prices look sensible</label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">Notes (visible to admins only)<textarea rows="3" style="border: 1px solid #A8A29E; border-radius: 8px; padding: 10px 12px"></textarea></label>
+          <a href="AdminList.html" style="display: flex; align-items: center; justify-content: center; height: 48px; border-radius: 10px; background: #115E59; color: #FFFFFF; font-weight: 600; text-decoration: none">Approve and activate</a>
+          <a href="AdminList.html" style="display: flex; align-items: center; justify-content: center; height: 48px; border-radius: 10px; border: 1px solid #A8A29E; color: #1C1917; font-weight: 600; text-decoration: none">Request changes</a>
+          <a href="AdminList.html" style="display: flex; align-items: center; justify-content: center; height: 48px; border-radius: 10px; border: 1px solid #B91C1C; color: #B91C1C; font-weight: 600; text-decoration: none">Reject with reason</a>
+          <p style="margin: 0; font-size: 13px; color: #57534E">The provider is told your reason. Every decision is saved in the audit log.</p>
+        </aside>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="data.js"></script>
+<script src="review.js"></script>
+</body>
+</html>

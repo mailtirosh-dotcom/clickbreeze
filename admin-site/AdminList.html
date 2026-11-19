@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Photographers and studios · ClickBreeze admin</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F5F5F4}
+a{color:#C2410C}a:hover{color:#9A3412}
+input,select{font:inherit}
+</style>
+
+<style>html{visibility:hidden}</style>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="auth.js"></script>
+<script>CB.guard();</script>
+</head>
+<body>
+
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F5F5F4}
+a{color:#C2410C}a:hover{color:#9A3412}
+input,select{font:inherit}
+</style>
+</helmet>
+<div style="font-family: Inter, sans-serif; color: #1C1917; background: #F5F5F4; min-height: 100vh; display: flex; flex-wrap: wrap">
+  <nav aria-label="Admin" style="flex: 1 1 240px; max-width: 100%; background: #1C1917; padding: 24px 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px">
+    <div style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: #FFFFFF; padding: 0 12px 24px">Click<span style="color: #FB923C">Breeze</span></div>
+    <a href="AdminDash.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Dashboard</a>
+    <a href="#" aria-current="page" style="color: #FFFFFF; text-decoration: none; padding: 12px; border-radius: 8px; background: #44403C; font-weight: 600">Photographers &amp; studios</a>
+    <a href="enroll.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Enroll new</a>
+    <a href="AdminOrders.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Bids &amp; orders</a>
+    <a href="AdminDisputes.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Disputes &amp; refunds</a>
+    <a href="AdminSafety.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Safety flags</a>
+    <a href="AdminLocations.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Locations &amp; readiness</a>
+    <a href="AdminTeam.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Team &amp; audit log</a>
+    <a href="AdminSettings.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Settings</a>
+  </nav>
+  <main style="flex: 999 1 560px; min-width: 0; padding: 32px 40px 48px; box-sizing: border-box">
+    <div style="max-width: 1100px; display: flex; flex-direction: column; gap: 24px">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px">
+        <h1 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700">Photographers &amp; studios</h1>
+        <a href="enroll.html" style="display: inline-flex; align-items: center; height: 44px; padding: 0 20px; border-radius: 8px; background: #C2410C; color: #FFFFFF; font-weight: 600; text-decoration: none">+ Enroll new</a>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px">
+        <div style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 16px"><div style="font-size: 14px; color: #57534E">Verified</div><div style="font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700">[N]</div></div>
+        <div style="background: #FFF7ED; border: 1px solid #FDBA74; border-radius: 12px; padding: 16px"><div style="font-size: 14px; color: #9A3412">Pending verification</div><div style="font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700">[N]</div></div>
+        <div style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 16px"><div style="font-size: 14px; color: #57534E">Studios</div><div style="font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700">[N]</div></div>
+        <div style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 16px"><div style="font-size: 14px; color: #57534E">Suspended</div><div style="font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700">[N]</div></div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 12px">
+        <label style="flex: 2 1 240px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 500">Search<input type="search" placeholder="Name, studio or mobile" style="height: 44px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px"></label>
+        <label style="flex: 1 1 140px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 500">District<select style="height: 44px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px; background: #FFFFFF"><option>All</option></select></label>
+        <label style="flex: 1 1 140px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 500">Type<select style="height: 44px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px; background: #FFFFFF"><option>All</option><option>Individual</option><option>Studio</option></select></label>
+        <label style="flex: 1 1 140px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 500">Status<select style="height: 44px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px; background: #FFFFFF"><option>All</option><option>Pending</option><option>Verified</option><option>Suspended</option></select></label>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; overflow-x: auto">
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 760px">
+          <thead><tr style="text-align: left; background: #F5F5F4"><th style="padding: 12px 16px">Name</th><th style="padding: 12px 16px">Type</th><th style="padding: 12px 16px">Town · District</th><th style="padding: 12px 16px">Categories</th><th style="padding: 12px 16px">Status</th><th style="padding: 12px 16px">Action</th></tr></thead>
+          <tbody>
+            <tr style="border-top: 1px solid #E7E5E4"><td style="padding: 12px 16px; font-weight: 600">[PHOTOGRAPHER NAME]</td><td style="padding: 12px 16px">Individual</td><td style="padding: 12px 16px">[TOWN] · [DISTRICT]</td><td style="padding: 12px 16px">Wedding, Birthday</td><td style="padding: 12px 16px"><span style="padding: 4px 10px; border-radius: 999px; background: #FFEDD5; color: #9A3412; font-weight: 600; font-size: 13px">Pending</span></td><td style="padding: 12px 16px"><a href="AdminReview.html">Review</a></td></tr>
+            <tr style="border-top: 1px solid #E7E5E4"><td style="padding: 12px 16px; font-weight: 600">[STUDIO NAME]</td><td style="padding: 12px 16px">Studio</td><td style="padding: 12px 16px">[TOWN] · [DISTRICT]</td><td style="padding: 12px 16px">Wedding, Product, Video</td><td style="padding: 12px 16px"><span style="padding: 4px 10px; border-radius: 999px; background: #CCFBF1; color: #115E59; font-weight: 600; font-size: 13px">Verified</span></td><td style="padding: 12px 16px"><a href="#">View</a></td></tr>
+            <tr style="border-top: 1px solid #E7E5E4"><td style="padding: 12px 16px; font-weight: 600">[PHOTOGRAPHER NAME]</td><td style="padding: 12px 16px">Individual</td><td style="padding: 12px 16px">[VILLAGE] · [DISTRICT]</td><td style="padding: 12px 16px">Portrait, Event</td><td style="padding: 12px 16px"><span style="padding: 4px 10px; border-radius: 999px; background: #E7E5E4; color: #44403C; font-weight: 600; font-size: 13px">Suspended</span></td><td style="padding: 12px 16px"><a href="#">View</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="data.js"></script>
+<script src="list.js"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Set up authenticator</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F5F5F4}
+a{color:#C2410C}a:hover{color:#9A3412}
+input,button{font:inherit}
+</style>
+</helmet>
+<div style="font-family: Inter, sans-serif; color: #1C1917; background: #F5F5F4; min-height: 100vh; display: flex; flex-wrap: wrap">
+  <nav aria-label="Admin" style="flex: 1 1 240px; max-width: 100%; background: #1C1917; padding: 24px 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px">
+    <div style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: #FFFFFF; padding: 0 12px 24px">Click<span style="color: #FB923C">Breeze</span></div>
+    <a href="AdminDash.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Dashboard</a>
+    <a href="AdminList.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Photographers &amp; studios</a>
+    <a href="Main.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Enroll new</a>
+    <a href="AdminOrders.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Bids &amp; orders</a>
+    <a href="AdminDisputes.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Disputes &amp; refunds</a>
+    <a href="AdminSafety.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Safety flags</a>
+    <a href="AdminLocations.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Locations &amp; readiness</a>
+    <a href="AdminTeam.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Team &amp; audit log</a>
+    <a href="AdminSettings.dc.html" aria-current="page" style="color: #FFFFFF; text-decoration: none; padding: 12px; border-radius: 8px; background: #44403C; font-weight: 600">Settings</a>
+  </nav>
+  <main style="flex: 999 1 560px; min-width: 0; padding: 32px 40px 48px; box-sizing: border-box">
+    <div style="max-width: 760px; display: flex; flex-direction: column; gap: 24px">
+      <div>
+        <p style="margin: 0 0 4px; font-size: 14px"><a href="AdminSettings.dc.html">Settings</a> / Authenticator</p>
+        <h1 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700">Set up your authenticator</h1>
+        <p style="margin: 8px 0 0; font-size: 15px; color: #57534E">Every admin signs in with a password and a 6-digit code from an authenticator app on their phone.</p>
+      </div>
+
+      <section aria-labelledby="st1" style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 10px">
+        <h2 id="st1" style="margin: 0; font-size: 18px; font-weight: 600">1. Install an authenticator app</h2>
+        <p style="margin: 0; font-size: 14px; color: #57534E">Use any authenticator app on your phone, for example Google Authenticator, Microsoft Authenticator or Authy.</p>
+      </section>
+
+      <section aria-labelledby="st2" style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 24px; display: flex; flex-wrap: wrap; gap: 24px; align-items: center">
+        <div role="img" aria-label="QR code for [ACCOUNT EMAIL] appears here" style="width: 200px; height: 200px; flex: none; border: 2px dashed #A8A29E; border-radius: 12px; background: #FAFAF9; display: flex; align-items: center; justify-content: center; text-align: center; padding: 16px; box-sizing: border-box; font-size: 13px; color: #57534E">[QR CODE for this account, made by the server]</div>
+        <div style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+          <h2 id="st2" style="margin: 0; font-size: 18px; font-weight: 600">2. Scan the QR code</h2>
+          <p style="margin: 0; font-size: 14px; color: #57534E">In the app, choose Add account and scan this code. If you can't scan, type this key instead.</p>
+          <div style="font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 2px; padding: 10px 12px; border-radius: 8px; background: #F5F5F4; word-break: break-all">[SETUP KEY]</div>
+        </div>
+      </section>
+
+      <section aria-labelledby="st3" style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+        <h2 id="st3" style="margin: 0; font-size: 18px; font-weight: 600">3. Enter the code to confirm</h2>
+        <fieldset style="border: 0; margin: 0; padding: 0">
+          <legend style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">6-digit code from the app</legend>
+          <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; max-width: 360px">
+            <input type="text" inputmode="numeric" maxlength="1" aria-label="Code digit 1" style="height: 52px; text-align: center; font-size: 22px; font-weight: 700; border: 1px solid #A8A29E; border-radius: 8px">
+            <input type="text" inputmode="numeric" maxlength="1" aria-label="Code digit 2" style="height: 52px; text-align: center; font-size: 22px; font-weight: 700; border: 1px solid #A8A29E; border-radius: 8px">
+            <input type="text" inputmode="numeric" maxlength="1" aria-label="Code digit 3" style="height: 52px; text-align: center; font-size: 22px; font-weight: 700; border: 1px solid #A8A29E; border-radius: 8px">
+            <input type="text" inputmode="numeric" maxlength="1" aria-label="Code digit 4" style="height: 52px; text-align: center; font-size: 22px; font-weight: 700; border: 1px solid #A8A29E; border-radius: 8px">
+            <input type="text" inputmode="numeric" maxlength="1" aria-label="Code digit 5" style="height: 52px; text-align: center; font-size: 22px; font-weight: 700; border: 1px solid #A8A29E; border-radius: 8px">
+            <input type="text" inputmode="numeric" maxlength="1" aria-label="Code digit 6" style="height: 52px; text-align: center; font-size: 22px; font-weight: 700; border: 1px solid #A8A29E; border-radius: 8px">
+          </div>
+        </fieldset>
+        <a href="#backup" style="display: flex; align-items: center; justify-content: center; height: 48px; max-width: 360px; border-radius: 10px; background: #C2410C; color: #FFFFFF; font-weight: 600; text-decoration: none">Confirm and turn on</a>
+      </section>
+
+      <section id="backup" aria-labelledby="st4" style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+        <h2 id="st4" style="margin: 0; font-size: 18px; font-weight: 600">4. Save your backup codes</h2>
+        <p style="margin: 0; font-size: 14px; color: #57534E">Each code works once if you lose your phone. They are shown only now, so store them somewhere safe.</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px">
+          <div style="padding: 10px 12px; border-radius: 8px; background: #F5F5F4; font-family: 'Space Grotesk', sans-serif; font-weight: 600; letter-spacing: 1px">[CODE]</div>
+          <div style="padding: 10px 12px; border-radius: 8px; background: #F5F5F4; font-family: 'Space Grotesk', sans-serif; font-weight: 600; letter-spacing: 1px">[CODE]</div>
+          <div style="padding: 10px 12px; border-radius: 8px; background: #F5F5F4; font-family: 'Space Grotesk', sans-serif; font-weight: 600; letter-spacing: 1px">[CODE]</div>
+          <div style="padding: 10px 12px; border-radius: 8px; background: #F5F5F4; font-family: 'Space Grotesk', sans-serif; font-weight: 600; letter-spacing: 1px">[CODE]</div>
+          <div style="padding: 10px 12px; border-radius: 8px; background: #F5F5F4; font-family: 'Space Grotesk', sans-serif; font-weight: 600; letter-spacing: 1px">[CODE]</div>
+          <div style="padding: 10px 12px; border-radius: 8px; background: #F5F5F4; font-family: 'Space Grotesk', sans-serif; font-weight: 600; letter-spacing: 1px">[CODE]</div>
+          <div style="padding: 10px 12px; border-radius: 8px; background: #F5F5F4; font-family: 'Space Grotesk', sans-serif; font-weight: 600; letter-spacing: 1px">[CODE]</div>
+          <div style="padding: 10px 12px; border-radius: 8px; background: #F5F5F4; font-family: 'Space Grotesk', sans-serif; font-weight: 600; letter-spacing: 1px">[CODE]</div>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <button type="button" style="height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid #A8A29E; background: #FFFFFF; font-weight: 600; cursor: pointer">Download codes</button>
+          <button type="button" style="height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid #A8A29E; background: #FFFFFF; font-weight: 600; cursor: pointer">Copy codes</button>
+          <a href="AdminDash.dc.html" style="display: inline-flex; align-items: center; height: 44px; padding: 0 16px; border-radius: 8px; background: #115E59; color: #FFFFFF; font-weight: 600; text-decoration: none">I have saved them, continue</a>
+        </div>
+        <label style="display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 14px"><input type="checkbox" style="width: 20px; height: 20px"> I have stored these codes safely</label>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

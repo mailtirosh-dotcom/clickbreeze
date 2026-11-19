@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Chat with photographer</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#C2410C}a:hover{color:#9A3412}
+input{font:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; font-family: Inter, sans-serif; color: #1C1917; background: #F5F5F4; display: flex; flex-direction: column; overflow: hidden">
+  <header style="background: #FFFFFF; border-bottom: 1px solid #E7E5E4; padding: 12px 8px; display: flex; align-items: center; gap: 4px">
+    <a href="CBids.dc.html" aria-label="Back" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #1C1917"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
+    <div aria-hidden="true" style="width: 40px; height: 40px; border-radius: 20px; background: #E7E5E4"></div>
+    <div style="flex: 1; min-width: 0; margin-left: 8px"><div style="font-weight: 600">[STUDIO NAME]</div><div style="font-size: 13px; color: #57534E">Bid ₹[AMOUNT] · Photos + video + album</div></div>
+    <a href="CToken.dc.html" style="display: flex; align-items: center; height: 44px; padding: 0 12px; border-radius: 8px; background: #C2410C; color: #FFFFFF; font-weight: 600; font-size: 14px; text-decoration: none">Confirm</a>
+  </header>
+  <div style="padding: 10px 16px; background: #FFF7ED; border-bottom: 1px solid #FDBA74; font-size: 13px; color: #9A3412">Phone numbers stay hidden until you confirm and pay the token. Please don't share numbers here.</div>
+  <div style="flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 10px; overflow: hidden">
+    <div style="align-self: flex-start; max-width: 80%; background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 14px 14px 14px 4px; padding: 10px 14px; font-size: 15px">Hello! I'm free on the date you posted. Happy to answer any questions.</div>
+    <div style="align-self: flex-end; max-width: 80%; background: #1C1917; color: #FFFFFF; border-radius: 14px 14px 4px 14px; padding: 10px 14px; font-size: 15px">Does the package cover both the ceremony and the reception?</div>
+    <div style="align-self: flex-start; max-width: 80%; background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 14px 14px 14px 4px; padding: 10px 14px; font-size: 15px">Yes, the 8 hours cover both. I can share two sample albums.</div>
+  </div>
+  <div style="padding: 8px 16px 0; display: flex; gap: 8px; flex-wrap: wrap">
+    <button type="button" style="height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid #A8A29E; background: #FFFFFF; font-size: 14px">Are you free on my date?</button>
+    <button type="button" style="height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid #A8A29E; background: #FFFFFF; font-size: 14px">Share sample albums</button>
+  </div>
+  <form style="padding: 8px 16px 20px; display: flex; gap: 8px; align-items: center">
+    <label style="flex: 1; display: flex"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden">Message</span><input type="text" placeholder="Type a message" style="flex: 1; height: 48px; border: 1px solid #A8A29E; border-radius: 24px; padding: 0 16px; background: #FFFFFF"></label>
+    <button type="button" aria-label="Send" style="width: 48px; height: 48px; border-radius: 24px; border: 0; background: #C2410C; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg></button>
+  </form>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

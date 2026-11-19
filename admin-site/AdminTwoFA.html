@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Set up authenticator · ClickBreeze</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F5F5F4}
+a{color:#C2410C}a:hover{color:#9A3412}
+input,button{font:inherit}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid #FB923C;outline-offset:2px}
+html{visibility:hidden}
+</style>
+</head>
+<body>
+<div style="font-family: Inter, sans-serif; color: #1C1917; background: #F5F5F4; min-height: 100vh; display: flex; justify-content: center; padding: 32px 16px; box-sizing: border-box">
+  <main style="width: 100%; max-width: 640px; display: flex; flex-direction: column; gap: 20px">
+    <div>
+      <div style="font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 700">Click<span style="color: #C2410C">Breeze</span></div>
+      <h1 style="margin: 12px 0 0; font-family: 'Space Grotesk', sans-serif; font-size: 30px; font-weight: 700">Set up your authenticator</h1>
+      <p style="margin: 8px 0 0; font-size: 15px; color: #57534E">Every admin signs in with a password and a 6-digit code from an authenticator app on their phone.</p>
+    </div>
+
+    <section style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 24px">
+      <h2 style="margin: 0 0 8px; font-size: 18px; font-weight: 600">1. Install an authenticator app</h2>
+      <p style="margin: 0; font-size: 14px; color: #57534E">Use any authenticator app on your phone, for example Google Authenticator, Microsoft Authenticator or Authy.</p>
+    </section>
+
+    <section style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 24px; display: flex; flex-wrap: wrap; gap: 24px; align-items: center">
+      <div id="qr" role="img" aria-label="QR code for your account" style="width: 200px; height: 200px; flex: none; border: 1px solid #E7E5E4; border-radius: 12px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 13px; color: #57534E; padding: 8px; box-sizing: border-box">Making your QR code…</div>
+      <div style="flex: 1 1 240px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+        <h2 style="margin: 0; font-size: 18px; font-weight: 600">2. Scan the QR code</h2>
+        <p style="margin: 0; font-size: 14px; color: #57534E">In the app, choose Add account and scan this code. If you can't scan, type this key instead.</p>
+        <div id="key" style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 2px; padding: 10px 12px; border-radius: 8px; background: #F5F5F4; word-break: break-all">…</div>
+      </div>
+    </section>
+
+    <form id="f" style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+      <h2 style="margin: 0; font-size: 18px; font-weight: 600">3. Enter the code to confirm</h2>
+      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500; max-width: 320px">6-digit code from the app
+        <input id="otp" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required autocomplete="one-time-code" style="height: 56px; text-align: center; letter-spacing: 8px; font-size: 24px; font-weight: 700; border: 1px solid #A8A29E; border-radius: 8px">
+      </label>
+      <button id="btn" type="submit" disabled style="height: 48px; max-width: 320px; border: 0; border-radius: 10px; background: #C2410C; color: #FFFFFF; font-weight: 600; font-size: 16px; cursor: pointer">Confirm and turn on</button>
+      <p id="msg" role="alert" style="margin: 0; font-size: 14px; color: #B91C1C; min-height: 20px"></p>
+      <p style="margin: 0; font-size: 13px; color: #57534E">Lost your phone later? A super admin can reset your authenticator from the Team page.</p>
+    </form>
+  </main>
+</div>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="auth.js"></script>
+<script>
+(async function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var st = await CB.state();
+  if (st.step === "signin" || st.step === "denied") return CB.go("index.html" + (st.step === "denied" ? "?denied=1" : ""));
+  if (st.step === "code") return CB.go("index.html");
+  document.documentElement.style.visibility = "visible";
+
+  var sb = CB.sb, factorId = null;
+
+  // Remove any half-finished setups, then start a fresh one.
+  var list = (await sb.auth.mfa.listFactors()).data || {};
+  var stale = (list.all || []).filter(function (x) { return x.factor_type === "totp" && x.status === "unverified"; });
+  for (var i = 0; i < stale.length; i++) await sb.auth.mfa.unenroll({ factorId: stale[i].id });
+
+  var en = await sb.auth.mfa.enroll({ factorType: "totp", issuer: "ClickBreeze", friendlyName: "Authenticator " + new Date().toISOString().slice(0, 10) });
+  if (en.error) { $("qr").textContent = "Could not start setup."; $("msg").textContent = en.error.message; return; }
+  factorId = en.data.id;
+  var img = document.createElement("img");
+  img.alt = "QR code for your account"; img.width = 184; img.height = 184; img.src = en.data.totp.qr_code;
+  $("qr").textContent = ""; $("qr").appendChild(img);
+  $("key").textContent = en.data.totp.secret;
+  $("btn").disabled = false;
+
+  $("f").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    $("btn").disabled = true; $("msg").textContent = "";
+    var ch = await sb.auth.mfa.challenge({ factorId: factorId });
+    if (ch.error) { $("msg").textContent = "Could not check the code. Try again."; $("btn").disabled = false; return; }
+    var v = await sb.auth.mfa.verify({ factorId: factorId, challengeId: ch.data.id, code: $("otp").value.trim() });
+    if (v.error) { $("msg").textContent = "That code is not correct. Check the app and try again."; $("otp").value = ""; $("btn").disabled = false; return; }
+    CB.go("AdminDash.html");
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Confirm and pay token</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#C2410C}a:hover{color:#9A3412}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; font-family: Inter, sans-serif; color: #1C1917; background: #F5F5F4; display: flex; flex-direction: column; overflow: hidden">
+  <header style="background: #FFFFFF; border-bottom: 1px solid #E7E5E4; padding: 12px 8px; display: flex; align-items: center; gap: 4px">
+    <a href="CBids.dc.html" aria-label="Back" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #1C1917"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
+    <div style="font-weight: 600; font-size: 17px">Confirm booking</div>
+  </header>
+  <div style="flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 12px; overflow: hidden">
+    <section style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 6px">
+      <div style="display: flex; gap: 12px; align-items: center">
+        <div aria-hidden="true" style="width: 44px; height: 44px; border-radius: 22px; background: #E7E5E4"></div>
+        <div><div style="font-weight: 600">[STUDIO NAME]</div><div style="font-size: 13px; color: #57534E">★ 4.8 · Verified studio</div></div>
+      </div>
+      <div style="font-size: 14px; color: #44403C">Photos + video + album · Sun, [DATE] · delivery in 15 days</div>
+    </section>
+    <section aria-labelledby="split-h" style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+      <h2 id="split-h" style="margin: 0; font-size: 13px; font-weight: 600; color: #57534E">HOW YOU PAY</h2>
+      <div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 14px">Agreed price</span><span style="font-weight: 600">₹[AMOUNT]</span></div>
+      <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 10px 12px; border-radius: 8px; background: #FFF7ED; border: 1px solid #FDBA74"><span style="font-size: 14px; font-weight: 600">Booking token · pay now</span><span style="font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700">₹[TOKEN]</span></div>
+      <div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 14px; color: #44403C">Balance · pay photographer on shoot day</span><span style="font-weight: 600">₹[BALANCE]</span></div>
+    </section>
+    <section aria-labelledby="refund-h" style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 16px">
+      <h2 id="refund-h" style="margin: 0 0 8px; font-size: 13px; font-weight: 600; color: #57534E">IF PLANS CHANGE</h2>
+      <ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #44403C; display: flex; flex-direction: column; gap: 4px">
+        <li>Photographer cancels: full token refund.</li>
+        <li>You cancel: [REFUND RULE].</li>
+        <li>Phone numbers are shared after payment.</li>
+      </ul>
+    </section>
+    <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px">
+      <legend style="font-size: 13px; font-weight: 600; color: #57534E; margin-bottom: 4px">PAY WITH</legend>
+      <label style="display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 15px"><input type="radio" name="pay" checked style="width: 20px; height: 20px"> UPI</label>
+      <label style="display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 15px"><input type="radio" name="pay" style="width: 20px; height: 20px"> Card / net banking</label>
+    </fieldset>
+  </div>
+  <div style="padding: 12px 16px 20px; background: #FFFFFF; border-top: 1px solid #E7E5E4; display: flex; flex-direction: column; gap: 8px">
+    <p style="margin: 0; font-size: 13px; color: #57534E; text-align: center">Your other bids will be marked Not selected.</p>
+    <a href="CBooked.dc.html" style="display: flex; align-items: center; justify-content: center; height: 52px; border-radius: 10px; background: #C2410C; color: #FFFFFF; font-weight: 600; font-size: 16px; text-decoration: none">Pay ₹[TOKEN] &amp; reveal contact</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

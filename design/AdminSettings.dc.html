@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Admin settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F5F5F4}
+a{color:#C2410C}a:hover{color:#9A3412}
+input,select{font:inherit}
+</style>
+</helmet>
+<div style="font-family: Inter, sans-serif; color: #1C1917; background: #F5F5F4; min-height: 100vh; display: flex; flex-wrap: wrap">
+  <nav aria-label="Admin" style="flex: 1 1 240px; max-width: 100%; background: #1C1917; padding: 24px 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px">
+    <div style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: #FFFFFF; padding: 0 12px 24px">Click<span style="color: #FB923C">Breeze</span></div>
+    <a href="AdminDash.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Dashboard</a>
+    <a href="AdminList.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Photographers &amp; studios</a>
+    <a href="Main.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Enroll new</a>
+    <a href="AdminOrders.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Bids &amp; orders</a>
+    <a href="AdminDisputes.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Disputes &amp; refunds</a>
+    <a href="AdminSafety.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Safety flags</a>
+    <a href="AdminLocations.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Locations &amp; readiness</a>
+    <a href="AdminTeam.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Team &amp; audit log</a>
+    <a href="#" aria-current="page" style="color: #FFFFFF; text-decoration: none; padding: 12px; border-radius: 8px; background: #44403C; font-weight: 600">Settings</a>
+  </nav>
+  <main style="flex: 999 1 560px; min-width: 0; padding: 32px 40px 48px; box-sizing: border-box">
+    <div style="max-width: 1040px; display: flex; flex-direction: column; gap: 24px">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px">
+        <div>
+          <h1 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700">Settings</h1>
+          <p style="margin: 4px 0 0; font-size: 14px; color: #57534E">Values shown are proposed defaults. Change them before the pilot.</p>
+        </div>
+        <button type="button" style="height: 44px; padding: 0 20px; border-radius: 8px; border: 0; background: #C2410C; color: #FFFFFF; font-weight: 600; cursor: pointer">Save changes</button>
+      </div>
+
+      <section aria-labelledby="s-token" style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+        <h2 id="s-token" style="margin: 0; font-size: 18px; font-weight: 600">Booking token and fees</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px">
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">Booking token (₹)<input type="number" value="300" style="height: 44px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">Platform fee<select style="height: 44px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px; background: #FFFFFF"><option>Keep the token</option><option>Percentage of booking</option></select></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">Fee percentage (%)<input type="number" placeholder="[PERCENT]" style="height: 44px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">Token refund if customer cancels<select style="height: 44px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px; background: #FFFFFF"><option>[Decide: full / partial / none]</option></select></label>
+        </div>
+      </section>
+
+      <section aria-labelledby="s-win" style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+        <h2 id="s-win" style="margin: 0; font-size: 18px; font-weight: 600">Bid windows and rules</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px">
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">Town window (hours)<input type="number" value="24" style="height: 44px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">District window (hours)<input type="number" value="24" style="height: 44px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">State window (hours)<input type="number" value="48" style="height: 44px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">Minimum bid drop (₹)<input type="number" value="100" style="height: 44px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px"></label>
+        </div>
+        <label style="display: flex; align-items: center; gap: 10px; font-size: 14px; min-height: 44px"><input type="checkbox" checked style="width: 20px; height: 20px"> Widen to the next level automatically when no bid is confirmed</label>
+      </section>
+
+      <section aria-labelledby="s-safe" style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+        <h2 id="s-safe" style="margin: 0; font-size: 18px; font-weight: 600">Trust and safety</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px">
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">Reports that flag a photographer<input type="number" value="3" style="height: 44px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">Within (days)<input type="number" value="30" style="height: 44px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">Dispute window after delivery (days)<input type="number" placeholder="[DAYS]" style="height: 44px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">App languages<select style="height: 44px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px; background: #FFFFFF"><option>Tamil + English</option></select></label>
+        </div>
+      </section>
+      <section aria-labelledby="s-2fa" style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+        <h2 id="s-2fa" style="margin: 0; font-size: 18px; font-weight: 600">Admin sign-in security</h2>
+        <label style="display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 14px"><input type="checkbox" checked disabled style="width: 20px; height: 20px"> Require an authenticator code for every team member (always on)</label>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px">
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">Remember this device for (days)<input type="number" placeholder="[DAYS]" style="height: 44px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">Sign out after inactivity (minutes)<input type="number" placeholder="[MINUTES]" style="height: 44px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">Lock account after wrong codes<input type="number" placeholder="[N]" style="height: 44px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px"></label>
+        </div>
+        <a href="AdminTwoFA.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; font-weight: 600">Set up or change my authenticator</a>
+      </section>
+      <section aria-labelledby="s-notif"style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+        <h2 id="s-notif" style="margin: 0; font-size: 18px; font-weight: 600">Notifications</h2>
+        <p style="margin: 0; font-size: 14px; color: #57534E">Push is sent first. SMS fallback is sent only if the push is not opened.</p>
+        <div style="overflow-x: auto">
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 560px">
+            <thead><tr style="text-align: left; background: #F5F5F4"><th style="padding: 10px 12px">Event</th><th style="padding: 10px 12px">Sent to</th><th style="padding: 10px 12px">Push</th><th style="padding: 10px 12px">SMS fallback</th></tr></thead>
+            <tbody>
+              <tr style="border-top: 1px solid #E7E5E4"><td style="padding: 10px 12px">New bid request nearby</td><td style="padding: 10px 12px">Photographers</td><td style="padding: 10px 12px"><input type="checkbox" checked aria-label="Push on" style="width: 20px; height: 20px"></td><td style="padding: 10px 12px"><input type="checkbox" aria-label="SMS fallback off" style="width: 20px; height: 20px"></td></tr>
+              <tr style="border-top: 1px solid #E7E5E4"><td style="padding: 10px 12px">Your bid was outbid</td><td style="padding: 10px 12px">Photographers</td><td style="padding: 10px 12px"><input type="checkbox" checked aria-label="Push on" style="width: 20px; height: 20px"></td><td style="padding: 10px 12px"><input type="checkbox" aria-label="SMS fallback off" style="width: 20px; height: 20px"></td></tr>
+              <tr style="border-top: 1px solid #E7E5E4"><td style="padding: 10px 12px">Bid confirmed and token paid</td><td style="padding: 10px 12px">Photographers</td><td style="padding: 10px 12px"><input type="checkbox" checked aria-label="Push on" style="width: 20px; height: 20px"></td><td style="padding: 10px 12px"><input type="checkbox" checked aria-label="SMS fallback on" style="width: 20px; height: 20px"></td></tr>
+              <tr style="border-top: 1px solid #E7E5E4"><td style="padding: 10px 12px">Shoot reminder (day before)</td><td style="padding: 10px 12px">Both</td><td style="padding: 10px 12px"><input type="checkbox" checked aria-label="Push on" style="width: 20px; height: 20px"></td><td style="padding: 10px 12px"><input type="checkbox" checked aria-label="SMS fallback on" style="width: 20px; height: 20px"></td></tr>
+              <tr style="border-top: 1px solid #E7E5E4"><td style="padding: 10px 12px">Delivery due soon</td><td style="padding: 10px 12px">Photographers</td><td style="padding: 10px 12px"><input type="checkbox" checked aria-label="Push on" style="width: 20px; height: 20px"></td><td style="padding: 10px 12px"><input type="checkbox" aria-label="SMS fallback off" style="width: 20px; height: 20px"></td></tr>
+              <tr style="border-top: 1px solid #E7E5E4"><td style="padding: 10px 12px">Photos delivered</td><td style="padding: 10px 12px">Customers</td><td style="padding: 10px 12px"><input type="checkbox" checked aria-label="Push on" style="width: 20px; height: 20px"></td><td style="padding: 10px 12px"><input type="checkbox" checked aria-label="SMS fallback on" style="width: 20px; height: 20px"></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

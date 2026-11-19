@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Disputes and refunds</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F5F5F4}
+a{color:#C2410C}a:hover{color:#9A3412}
+input,select,textarea{font:inherit}
+</style>
+</helmet>
+<div style="font-family: Inter, sans-serif; color: #1C1917; background: #F5F5F4; min-height: 100vh; display: flex; flex-wrap: wrap">
+  <nav aria-label="Admin" style="flex: 1 1 240px; max-width: 100%; background: #1C1917; padding: 24px 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px">
+    <div style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: #FFFFFF; padding: 0 12px 24px">Click<span style="color: #FB923C">Breeze</span></div>
+    <a href="AdminDash.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Dashboard</a>
+    <a href="AdminList.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Photographers &amp; studios</a>
+    <a href="Main.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Enroll new</a>
+    <a href="AdminOrders.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Bids &amp; orders</a>
+    <a href="AdminDisputes.dc.html" aria-current="page" style="color: #FFFFFF; text-decoration: none; padding: 12px; border-radius: 8px; background: #44403C; font-weight: 600">Disputes &amp; refunds</a>
+    <a href="AdminSafety.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Safety flags</a>
+    <a href="AdminLocations.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Locations &amp; readiness</a>
+    <a href="AdminTeam.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Team &amp; audit log</a>
+    <a href="AdminSettings.dc.html" style="color: #D6D3D1; text-decoration: none; padding: 12px; border-radius: 8px">Settings</a>
+  </nav>
+  <main style="flex: 999 1 560px; min-width: 0; padding: 32px 40px 48px; box-sizing: border-box">
+    <div style="max-width: 1100px; display: flex; flex-direction: column; gap: 24px">
+      <h1 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700">Disputes &amp; refunds</h1>
+      <div role="tablist" aria-label="View" style="display: flex; gap: 4px; border-bottom: 1px solid #D6D3D1">
+        <button type="button" role="tab" aria-selected="true" style="height: 48px; padding: 0 20px; border: 0; border-bottom: 3px solid #C2410C; background: none; font-weight: 600; font-size: 15px">Disputes</button>
+        <button type="button" role="tab" aria-selected="false" style="height: 48px; padding: 0 20px; border: 0; background: none; font-size: 15px; color: #57534E">Refunds</button>
+        <button type="button" role="tab" aria-selected="false" style="height: 48px; padding: 0 20px; border: 0; background: none; font-size: 15px; color: #57534E">Support tickets</button>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; overflow-x: auto">
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 860px">
+          <thead><tr style="text-align: left; background: #F5F5F4"><th style="padding: 12px 16px">Case</th><th style="padding: 12px 16px">Type</th><th style="padding: 12px 16px">Booking</th><th style="padding: 12px 16px">Opened</th><th style="padding: 12px 16px">Respond by</th><th style="padding: 12px 16px">Status</th><th style="padding: 12px 16px">Assigned to</th></tr></thead>
+          <tbody>
+            <tr style="border-top: 1px solid #E7E5E4; background: #FFF7ED"><td style="padding: 12px 16px; font-weight: 600">[CASE ID]</td><td style="padding: 12px 16px">Photographer no-show</td><td style="padding: 12px 16px">[BOOKING ID]</td><td style="padding: 12px 16px">[DATE]</td><td style="padding: 12px 16px"><span style="color: #B91C1C; font-weight: 600">Overdue by [H] h</span></td><td style="padding: 12px 16px"><span style="padding: 4px 10px; border-radius: 999px; background: #FEE2E2; color: #991B1B; font-weight: 600; font-size: 13px">Open</span></td><td style="padding: 12px 16px">[ADMIN NAME]</td></tr>
+            <tr style="border-top: 1px solid #E7E5E4"><td style="padding: 12px 16px; font-weight: 600">[CASE ID]</td><td style="padding: 12px 16px">Late delivery</td><td style="padding: 12px 16px">[BOOKING ID]</td><td style="padding: 12px 16px">[DATE]</td><td style="padding: 12px 16px">In [H] h</td><td style="padding: 12px 16px"><span style="padding: 4px 10px; border-radius: 999px; background: #FFEDD5; color: #9A3412; font-weight: 600; font-size: 13px">Waiting for provider</span></td><td style="padding: 12px 16px">[ADMIN NAME]</td></tr>
+            <tr style="border-top: 1px solid #E7E5E4"><td style="padding: 12px 16px; font-weight: 600">[CASE ID]</td><td style="padding: 12px 16px">Quality complaint</td><td style="padding: 12px 16px">[BOOKING ID]</td><td style="padding: 12px 16px">[DATE]</td><td style="padding: 12px 16px">In [H] h</td><td style="padding: 12px 16px"><span style="padding: 4px 10px; border-radius: 999px; background: #E0F2FE; color: #075985; font-weight: 600; font-size: 13px">Under review</span></td><td style="padding: 12px 16px">Unassigned</td></tr>
+            <tr style="border-top: 1px solid #E7E5E4"><td style="padding: 12px 16px; font-weight: 600">[CASE ID]</td><td style="padding: 12px 16px">Customer cancelled</td><td style="padding: 12px 16px">[BOOKING ID]</td><td style="padding: 12px 16px">[DATE]</td><td style="padding: 12px 16px">Resolved</td><td style="padding: 12px 16px"><span style="padding: 4px 10px; border-radius: 999px; background: #CCFBF1; color: #115E59; font-weight: 600; font-size: 13px">Closed</span></td><td style="padding: 12px 16px">[ADMIN NAME]</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+        <section aria-labelledby="case-h" style="flex: 2 1 480px; min-width: 0; background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+          <h2 id="case-h" style="margin: 0; font-size: 18px; font-weight: 600">Case [CASE ID] · Photographer no-show</h2>
+          <dl style="margin: 0; display: grid; grid-template-columns: 160px 1fr; row-gap: 8px; font-size: 14px">
+            <dt style="color: #57534E">Customer</dt><dd style="margin: 0">[CUSTOMER NAME]</dd>
+            <dt style="color: #57534E">Photographer</dt><dd style="margin: 0">[STUDIO NAME]</dd>
+            <dt style="color: #57534E">Booking</dt><dd style="margin: 0">Wedding · Sun, [DATE] · ₹[AMOUNT]</dd>
+            <dt style="color: #57534E">Token paid</dt><dd style="margin: 0">₹[TOKEN] on [DATE]</dd>
+            <dt style="color: #57534E">Shoot-day code used</dt><dd style="margin: 0; color: #B91C1C; font-weight: 600">No</dd>
+          </dl>
+          <ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 14px">
+            <li style="padding: 10px 12px; border-radius: 8px; background: #F5F5F4"><strong>[DATE] [TIME]</strong> · Customer reported the photographer did not arrive.</li>
+            <li style="padding: 10px 12px; border-radius: 8px; background: #F5F5F4"><strong>[DATE] [TIME]</strong> · Photographer notified and asked to respond.</li>
+          </ol>
+        </section>
+        <aside aria-label="Resolution" style="flex: 1 1 300px; min-width: 0; background: #FFFFFF; border: 1px solid #E7E5E4; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+          <h2 style="margin: 0; font-size: 18px; font-weight: 600">Resolution</h2>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">Outcome<select style="height: 44px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px; background: #FFFFFF"><option>Refund token in full</option><option>Partial refund</option><option>No refund</option></select></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">Refund amount (₹)<input type="number" placeholder="[TOKEN]" style="height: 44px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">Message to both parties<textarea rows="3" style="border: 1px solid #A8A29E; border-radius: 8px; padding: 10px 12px"></textarea></label>
+          <label style="display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 14px"><input type="checkbox" checked style="width: 20px; height: 20px"> Raise a safety flag on the photographer</label>
+          <a href="#" style="display: flex; align-items: center; justify-content: center; height: 48px; border-radius: 10px; background: #C2410C; color: #FFFFFF; font-weight: 600; text-decoration: none">Resolve case</a>
+          <p style="margin: 0; font-size: 13px; color: #57534E">Refunds above [₹ LIMIT] need a super admin. Every resolution is saved in the audit log.</p>
+        </aside>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

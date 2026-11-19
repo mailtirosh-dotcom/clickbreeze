@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Admin sign in · ClickBreeze</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#1C1917}
+a{color:#C2410C}a:hover{color:#9A3412}
+input,button{font:inherit}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid #FB923C;outline-offset:2px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div style="font-family: Inter, sans-serif; color: #1C1917; background: #1C1917; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 32px 16px; box-sizing: border-box">
+  <main style="width: 100%; max-width: 440px; background: #FFFFFF; border-radius: 16px; padding: 32px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px">
+    <div>
+      <div style="font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 700">Click<span style="color: #C2410C">Breeze</span></div>
+      <h1 style="margin: 12px 0 0; font-size: 20px; font-weight: 600">Admin sign in</h1>
+      <p id="sub" style="margin: 4px 0 0; font-size: 14px; color: #57534E">Use your work email and password, then the 6-digit code from the authenticator app on your phone.</p>
+    </div>
+
+    <form id="pw" style="display: flex; flex-direction: column; gap: 16px">
+      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">Email<input id="email" type="email" required autocomplete="username" style="height: 48px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px"></label>
+      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">Password<input id="password" type="password" required autocomplete="current-password" style="height: 48px; border: 1px solid #A8A29E; border-radius: 8px; padding: 0 12px"></label>
+      <button id="pwBtn" type="submit" style="height: 52px; border: 0; border-radius: 10px; background: #C2410C; color: #FFFFFF; font-weight: 600; font-size: 16px; cursor: pointer">Continue</button>
+    </form>
+
+    <form id="code" hidden style="display: flex; flex-direction: column; gap: 16px">
+      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 500">Authenticator code
+        <input id="otp" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required autocomplete="one-time-code" placeholder="6-digit code" style="height: 56px; text-align: center; letter-spacing: 8px; font-size: 24px; font-weight: 700; border: 1px solid #A8A29E; border-radius: 8px">
+      </label>
+      <div style="font-size: 13px; color: #57534E">Open your authenticator app and enter the code for ClickBreeze. It changes every 30 seconds.</div>
+      <button id="codeBtn" type="submit" style="height: 52px; border: 0; border-radius: 10px; background: #C2410C; color: #FFFFFF; font-weight: 600; font-size: 16px; cursor: pointer">Sign in</button>
+      <p style="margin: 0; font-size: 13px; color: #57534E">Lost your phone? Ask a super admin to reset your authenticator.</p>
+      <button id="back" type="button" style="height: 44px; border: 0; background: none; color: #C2410C; font-weight: 600; cursor: pointer">Use a different account</button>
+    </form>
+
+    <p id="msg" role="alert" style="margin: 0; font-size: 14px; color: #B91C1C; min-height: 20px"></p>
+    <p style="margin: 0; font-size: 13px; color: #57534E">Every sign in is recorded. Access is by invitation only.</p>
+  </main>
+</div>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="auth.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var msg = $("msg");
+  var factor = null;
+
+  function show(step) {
+    $("pw").hidden = step !== "pw";
+    $("code").hidden = step !== "code";
+    msg.textContent = "";
+    if (step === "code") $("otp").focus();
+  }
+
+  async function route() {
+    var st = await CB.state();
+    if (st.step === "ok") return CB.go("AdminDash.html");
+    if (st.step === "enroll") return CB.go("AdminTwoFA.html");
+    if (st.step === "code") { factor = st.factor; return show("code"); }
+    if (st.step === "denied") msg.textContent = "This account does not have admin access.";
+    show("pw");
+  }
+
+  if (new URLSearchParams(location.search).get("denied")) msg.textContent = "This account does not have admin access.";
+
+  $("pw").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    $("pwBtn").disabled = true; msg.textContent = "";
+    var r = await CB.sb.auth.signInWithPassword({ email: $("email").value.trim(), password: $("password").value });
+    $("pwBtn").disabled = false;
+    if (r.error) { msg.textContent = "Email or password is not correct."; return; }
+    $("password").value = "";
+    route();
+  });
+
+  $("code").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    $("codeBtn").disabled = true; msg.textContent = "";
+    var ch = await CB.sb.auth.mfa.challenge({ factorId: factor.id });
+    if (ch.error) { msg.textContent = "Could not check the code. Try again."; $("codeBtn").disabled = false; return; }
+    var v = await CB.sb.auth.mfa.verify({ factorId: factor.id, challengeId: ch.data.id, code: $("otp").value.trim() });
+    $("codeBtn").disabled = false;
+    if (v.error) { msg.textContent = "That code is not correct. Check the app and try again."; $("otp").value = ""; $("otp").focus(); return; }
+    CB.go("AdminDash.html");
+  });
+
+  $("back").addEventListener("click", async function () { await CB.sb.auth.signOut(); show("pw"); });
+
+  route();
+})();
+</script>
+</body>
+</html>
