@@ -109,7 +109,7 @@
       onDone();
     });
     root.appendChild(h("main", { class: "auth" },
-      h("div", { class: "brand", html: "Click<span>Breeze</span>" }),
+      h("img", { class: "logo", src: "logo.png", alt: "ClickBreeze" }),
       h("h1", { text: title }),
       h("p", { class: "muted", text: "We will send a code to your mobile number." }),
       f1, f2, msg));

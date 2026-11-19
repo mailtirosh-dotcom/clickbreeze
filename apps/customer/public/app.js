@@ -38,7 +38,7 @@
       e.preventDefault();
       try { await A.rpc("ensure_customer", { p_name: name.value }); start(); } catch (x) { msg.textContent = x.message; }
     });
-    root.appendChild(h("main", { class: "auth" }, h("div", { class: "brand", html: "Click<span>Breeze</span>" }), h("h1", { text: "Welcome" }),
+    root.appendChild(h("main", { class: "auth" }, h("img", { class: "logo", src: "logo.png", alt: "ClickBreeze" }), h("h1", { text: "Welcome" }),
       h("p", { class: "muted", text: "Photographers will see this name only after you confirm a booking." }), f, msg));
   }
 

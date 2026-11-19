@@ -55,3 +55,7 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 .notice{background:#FFF7ED;border:1px solid #FDBA74;border-radius:12px;padding:10px 12px;font-size:14px;color:#9A3412}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px;margin:0}.kv dt{color:var(--gr)}.kv dd{margin:0;font-weight:600}
 .maplibregl-ctrl-attrib{font-size:11px}
+
+.logo{mix-blend-mode:multiply;width:160px;height:auto;align-self:center;margin-bottom:8px}
+.theme-green{--or:#15803D;--or2:#4ADE80}
+.theme-green .chip[aria-pressed=true]{background:#F0FDF4;color:#166534}

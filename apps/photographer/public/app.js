@@ -5,7 +5,7 @@
 
   function problem(e, canRetry) {
     A.clear(root);
-    root.appendChild(h("main", { class: "auth" }, h("div", { class: "brand", html: "Click<span>Breeze</span>" }), h("h1", { text: "Cannot open your account" }),
+    root.appendChild(h("main", { class: "auth" }, h("img", { class: "logo", src: "logo.png", alt: "ClickBreeze" }), h("h1", { text: "Cannot open your account" }),
       h("p", { class: "err", text: e.message || String(e) }),
       canRetry ? h("button", { class: "btn", text: "Try again", onclick: start }) : null, h("button", { class: "link", text: "Sign out", onclick: A.signOut })));
   }
