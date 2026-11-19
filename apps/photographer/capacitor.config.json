@@ -1,0 +1,6 @@
+{
+  "appId": "in.clickbreeze.photographer",
+  "appName": "ClickBreeze Photographer",
+  "webDir": "www",
+  "server": { "androidScheme": "https" }
+}

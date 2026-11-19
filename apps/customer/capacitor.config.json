@@ -1,0 +1,6 @@
+{
+  "appId": "in.clickbreeze.customer",
+  "appName": "ClickBreeze",
+  "webDir": "www",
+  "server": { "androidScheme": "https" }
+}
