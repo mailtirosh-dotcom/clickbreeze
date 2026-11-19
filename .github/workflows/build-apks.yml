@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
     paths: ["apps/**", "shared/**", "scripts/**", ".github/workflows/build-apks.yml"]
+permissions:
+  contents: write
 jobs:
   apk:
     runs-on: ubuntu-latest
@@ -39,3 +41,11 @@ jobs:
         with:
           name: clickbreeze-${{ matrix.app }}-debug-apk
           path: apps/${{ matrix.app }}/android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Attach APK to a GitHub Release
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp apps/${{ matrix.app }}/android/app/build/outputs/apk/debug/app-debug.apk clickbreeze-${{ matrix.app }}.apk
+          gh release view apks >/dev/null 2>&1 || gh release create apks --title "Latest debug APKs" --notes "Debug builds, replaced on every build." --prerelease
+          gh release upload apks clickbreeze-${{ matrix.app }}.apk --clobber
