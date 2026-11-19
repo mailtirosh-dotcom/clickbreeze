@@ -12,7 +12,7 @@
   async function start() {
     try {
       var s = await A.session();
-      if (!s) return A.signInScreen(root, "Customer sign in", start);
+      if (!s) { if (A.open) await A.anonymous(); else return A.signInScreen(root, "Customer sign in", start); }
       A.config = await A.rpc("app_config");
       me = await A.rpc("my_customer");
       if (!me) return nameScreen();
@@ -32,14 +32,15 @@
   function nameScreen() {
     A.clear(root);
     var name = h("input", { id: "nm", type: "text", autocomplete: "name", maxlength: "60" });
+    var mob = h("input", { id: "mb", type: "tel", inputmode: "numeric", maxlength: "10", placeholder: "10-digit mobile number", autocomplete: "tel-national" });
     var msg = h("p", { class: "err", role: "alert" });
-    var f = h("form", { class: "stack" }, h("label", { for: "nm", text: "Your name" }), name, h("button", { class: "btn", type: "submit", text: "Continue" }));
+    var f = h("form", { class: "stack" }, h("label", { for: "nm", text: "Your name" }), name, A.open ? h("label", { for: "mb", text: "Mobile number" }) : null, A.open ? mob : null, h("button", { class: "btn", type: "submit", text: "Continue" }));
     f.addEventListener("submit", async function (e) {
       e.preventDefault();
-      try { await A.rpc("ensure_customer", { p_name: name.value }); start(); } catch (x) { msg.textContent = x.message; }
+      try { await A.rpc("ensure_customer", A.open ? { p_name: name.value, p_phone: mob.value } : { p_name: name.value }); start(); } catch (x) { msg.textContent = x.message; }
     });
     root.appendChild(h("main", { class: "auth" }, h("img", { class: "logo", src: "logo.png", alt: "ClickBreeze" }), h("h1", { text: "Welcome" }),
-      h("p", { class: "muted", text: "Photographers will see this name only after you confirm a booking." }), f, msg));
+      h("p", { class: "muted", text: "Photographers see your name and number only after you confirm a booking." }), f, msg));
   }
 
   // ---------- Requests ----------
@@ -280,7 +281,7 @@
         h("button", { class: "btn small ghost", type: "button", text: "Unblock", onclick: async function () { try { await A.rpc("unblock_provider", { p_provider: b.provider_id }); renderMe(A.clear(view)); } catch (e) { A.fail(e); } } }))));
     });
     if (A.config.payment_mode === "test") view.appendChild(h("div", { class: "notice", text: "Test mode: no real payment is taken when you confirm a booking." }));
-    view.appendChild(h("button", { class: "btn ghost", type: "button", text: "Sign out", onclick: A.signOut }));
+    if (!A.open) view.appendChild(h("button", { class: "btn ghost", type: "button", text: "Sign out", onclick: A.signOut }));
   }
 
   start();

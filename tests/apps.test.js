@@ -14,7 +14,7 @@ function serve(dir) {
   });
 }
 const STUB = `window.supabase={createClient:function(){var S=JSON.parse(localStorage.getItem('S')||'{"in":0}');
-return {auth:{getSession:async()=>({data:{session:S.in?{user:{id:'u'}}:null}}),
+return {auth:{signInAnonymously:async()=>{if(window.__noAnon)return {error:{message:'disabled'}};S.in=1;localStorage.setItem('S',JSON.stringify(S));return {data:{}}},getSession:async()=>({data:{session:S.in?{user:{id:'u'}}:null}}),
  signInWithOtp:async(a)=>{window.__otp=a;return {}},
  verifyOtp:async(a)=>{ if(a.token!=='123456') return {error:{message:'bad'}}; S.in=1;localStorage.setItem('S',JSON.stringify(S));return {data:{}} },
  signOut:async()=>{localStorage.removeItem('S');return {}}},
@@ -44,7 +44,7 @@ let fails = 0; const ok = (n, c, x) => { console.log((c ? "PASS " : "FAIL ") + n
     switch (n) {
       case "app_config": return { token_amount: 300, bid_window_hours: 24, payment_mode: "test", approx_km: 2 };
       case "my_customer": return db.customer;
-      case "ensure_customer": db.customer = { user_id: "u", name: a.p_name }; return db.customer;
+      case "ensure_customer": if (a.p_phone !== undefined && !/^[6-9]\d{9}$/.test(a.p_phone)) throw new Error("Enter a 10-digit mobile number"); db.customer = { user_id: "u", name: a.p_name }; return db.customer;
       case "my_requirements": return db.reqs;
       case "requirement_bids": return db.blocked ? [db.bids[1]] : db.bids;
       case "post_requirement": db.reqs.push(Object.assign({}, db.reqs[0], { id: "r2", seq: 2, event_type: a.p_event_type, bids_count: 0, lowest: null })); return "r2";
@@ -54,6 +54,8 @@ let fails = 0; const ok = (n, c, x) => { console.log((c ? "PASS " : "FAIL ") + n
       case "my_blocks": return db.blocked ? [{ provider_id: "p1", name: "Golden Frame" }] : [];
       case "unblock_provider": db.blocked = false; return null;
       case "raise_dispute": return "d1";
+      case "link_provider_open": if (a.p_phone !== "9876543210") throw new Error("No photographer account found for this mobile number. Ask ClickBreeze to enroll you."); db.linked = true; return db.provider;
+      case "my_provider": return db.linked ? db.provider : null;
       case "link_provider": if (db.providerError) throw new Error(db.providerError); return db.provider;
       case "provider_feed": return db.feed;
       case "place_bid": db.feed[0].my_bid = a.p_amount; db.feed[0].lowest = Math.min(db.feed[0].lowest, a.p_amount); return null;
@@ -65,9 +67,10 @@ let fails = 0; const ok = (n, c, x) => { console.log((c ? "PASS " : "FAIL ") + n
       default: throw new Error("unknown rpc " + n);
     }
   }
-  async function open(dir, name) {
+  async function open(dir, name, login) {
     const server = await serve(dir); const port = server.address().port;
     const ctx = await browser.newContext({ viewport: { width: 400, height: 800 }, permissions: ["geolocation"], geolocation: { latitude: 9.9, longitude: 78.1 } });
+    await ctx.route("**/config.js", r => r.fulfill({ contentType: "text/javascript", body: "window.CB_CONFIG={url:'https://x.supabase.co',key:'k',login:'" + (login || "otp") + "'}" }));
     await ctx.route("**/vendor/supabase.js", r => r.fulfill({ contentType: "text/javascript", body: STUB }));
     await ctx.route("**/tiles.openfreemap.org/**", r => r.fulfill({ contentType: "application/json", body: JSON.stringify(STYLE) }));
     await ctx.route("**/photon.komoot.io/**", r => r.fulfill({ contentType: "application/json", body: JSON.stringify({ features: [
@@ -181,6 +184,37 @@ let fails = 0; const ok = (n, c, x) => { console.log((c ? "PASS " : "FAIL ") + n
     ok("photographer: set_provider_location after dragging pin", sl && Math.abs(sl[1].p_lat - 10.8) > 0 && sl[1].p_radius === 50 && sl[1].p_address === "Main road, Melur" && sl[1].p_lng > 70, JSON.stringify(sl && sl[1]));
     ok("photographer: no page errors", errs.length === 0, errs.join(" | "));
     await p.screenshot({ path: "/tmp/ph_studio.png" });
+    await ctx.close(); server.close();
+  }
+  // ================= OPEN MODE (no SMS) =================
+  {
+    const { page: p, errs, server, ctx } = await open(path.join(root, "apps/customer/www"), "customer", "open");
+    db.customer = null;
+    await p.waitForSelector("#nm");
+    ok("open: customer goes straight to name+mobile (no OTP)", await p.locator("#ph").count() === 0 && await p.locator("#mb").count() === 1);
+    await p.fill("#nm", "Anu"); await p.fill("#mb", "123"); await p.click("text=Continue"); await p.waitForTimeout(200);
+    ok("open: bad mobile rejected", /10-digit/.test(await p.textContent(".err")));
+    await p.fill("#mb", "9876500001"); await p.click("text=Continue"); await p.waitForSelector(".card");
+    const ec = calls.filter(c => c[0] === "ensure_customer").pop();
+    ok("open: ensure_customer gets name and phone", ec && ec[1].p_name === "Anu" && ec[1].p_phone === "9876500001");
+    await p.click(".tabs a[data-tab=me]"); await p.waitForSelector("text=Blocked photographers");
+    ok("open: customer has no sign-out button", await p.locator("button:has-text('Sign out')").count() === 0);
+    await p.reload(); await p.waitForSelector(".tabs");
+    ok("open: session survives reopening", await p.locator("#nm").count() === 0);
+    ok("open: customer no page errors", errs.length === 0, errs.join(" | "));
+    await ctx.close(); server.close();
+  }
+  {
+    const { page: p, errs, server, ctx } = await open(path.join(root, "apps/photographer/www"), "photographer", "open");
+    db.linked = false;
+    await p.waitForSelector("#ph");
+    await p.fill("#ph", "9000000000"); await p.click("text=Continue"); await p.waitForSelector(".err:has-text('No photographer account')");
+    ok("open: unknown number rejected", true);
+    await p.fill("#ph", "9876543210"); await p.click("text=Continue"); await p.waitForSelector(".card");
+    ok("open: photographer opens with enrolled number", /Murugan Mahal/.test(await p.textContent(".view")));
+    await p.reload(); await p.waitForSelector(".tabs");
+    ok("open: photographer stays linked after reopening", await p.locator("#ph").count() === 0);
+    ok("open: photographer no page errors", errs.length === 0, errs.join(" | "));
     await ctx.close(); server.close();
   }
   await browser.close();

@@ -114,6 +114,35 @@
       h("p", { class: "muted", text: "We will send a code to your mobile number." }),
       f1, f2, msg));
   };
+  A.open = (cfg.login === "open");
+  // Open mode: a private anonymous session is created on this phone (no SMS). Needs "Allow anonymous sign-ins" in Supabase.
+  A.anonymous = async function () {
+    var r = await sb.auth.signInAnonymously();
+    if (r.error) throw new Error("Could not start. Anonymous sign-ins are switched off in Supabase (" + r.error.message + ").");
+  };
+  // Photographer in open mode: type the mobile number ClickBreeze enrolled.
+  A.openLinkScreen = function (root, title, onDone) {
+    A.clear(root);
+    var msg = h("p", { class: "err", role: "alert" });
+    var phone = h("input", { id: "ph", type: "tel", inputmode: "numeric", maxlength: "10", placeholder: "10-digit mobile number" });
+    var btn = h("button", { class: "btn", type: "submit", text: "Continue" });
+    var f = h("form", { class: "stack" }, h("label", { for: "ph", text: "Mobile number registered with ClickBreeze" }),
+      h("div", { class: "phone" }, h("span", { text: "+91" }), phone), btn);
+    f.addEventListener("submit", async function (e) {
+      e.preventDefault(); msg.textContent = "";
+      var n = phone.value.replace(/\D/g, "");
+      if (!/^[6-9]\d{9}$/.test(n)) { msg.textContent = "Enter a 10-digit Indian mobile number."; return; }
+      btn.disabled = true;
+      try {
+        if (!(await A.session())) await A.anonymous();
+        await A.rpc("link_provider_open", { p_phone: n });
+        onDone();
+      } catch (x) { msg.textContent = x.message; }
+      btn.disabled = false;
+    });
+    root.appendChild(h("main", { class: "auth" }, h("img", { class: "logo", src: "logo.png", alt: "ClickBreeze" }), h("h1", { text: title }),
+      h("p", { class: "muted", text: "Testing mode: no SMS code for now." }), f, msg));
+  };
   A.signOut = async function () { await sb.auth.signOut(); location.reload(); };
   A.session = async function () { return (await sb.auth.getSession()).data.session; };
 

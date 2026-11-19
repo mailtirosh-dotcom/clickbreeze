@@ -40,7 +40,7 @@ alter table public.bookings add column if not exists provider_id uuid references
 create unique index if not exists bids_one_per_provider on public.bids (requirement_id, provider_id);
 
 insert into public.settings (key, value) values
-  ('token_amount', '300'), ('bid_window_hours', '24'), ('payment_mode', '"test"'), ('delivery_days', '7')
+  ('token_amount', '300'), ('bid_window_hours', '24'), ('payment_mode', '"test"'), ('delivery_days', '7'), ('login_mode', '"open"')
   on conflict (key) do nothing;
 
 do $$
@@ -122,6 +122,7 @@ returns jsonb language sql stable security definer set search_path = '' as $$
     'token_amount', private.setting_int('token_amount', 300),
     'bid_window_hours', private.setting_int('bid_window_hours', 24),
     'payment_mode', coalesce((select value #>> '{}' from public.settings where key = 'payment_mode'), 'test'),
+    'login_mode', coalesce((select value #>> '{}' from public.settings where key = 'login_mode'), 'otp'),
     'approx_km', 2);
 $$;
 
@@ -131,14 +132,21 @@ returns jsonb language sql stable security definer set search_path = '' as $$
   select to_jsonb(c) from public.customers c where c.user_id = (select auth.uid());
 $$;
 
-create or replace function public.ensure_customer(p_name text, p_town uuid default null)
+drop function if exists public.ensure_customer(text, uuid);
+create or replace function public.ensure_customer(p_name text, p_phone text default null, p_town uuid default null)
 returns jsonb language plpgsql security definer set search_path = '' as $$
+declare digits text := nullif(private.phone_digits(), '');
 begin
   if (select auth.uid()) is null then raise exception 'Sign in first'; end if;
   if length(trim(coalesce(p_name, ''))) < 2 then raise exception 'Enter your name'; end if;
+  if digits is null then
+    digits := right(regexp_replace(coalesce(p_phone, ''), '\D', '', 'g'), 10);
+    if digits !~ '^[6-9][0-9]{9}$' then raise exception 'Enter a 10-digit mobile number'; end if;
+  end if;
   insert into public.customers (user_id, name, phone, town_id)
-  values ((select auth.uid()), trim(p_name), nullif(private.phone_digits(), ''), p_town)
-  on conflict (user_id) do update set name = excluded.name, town_id = coalesce(excluded.town_id, public.customers.town_id);
+  values ((select auth.uid()), trim(p_name), digits, p_town)
+  on conflict (user_id) do update set name = excluded.name, phone = coalesce(excluded.phone, public.customers.phone),
+    town_id = coalesce(excluded.town_id, public.customers.town_id);
   return public.my_customer();
 end $$;
 
@@ -321,6 +329,26 @@ begin
   return public.my_provider();
 end $$;
 
+-- TEMPORARY open mode: a photographer links to the enrolled mobile number without an SMS code.
+-- Works only while settings.login_mode = "open". Anyone who knows an enrolled number could claim it,
+-- so switch login_mode to "otp" (and set up SMS) before real use.
+create or replace function public.link_provider_open(p_phone text)
+returns jsonb language plpgsql security definer set search_path = '' as $$
+declare p public.providers; digits text := right(regexp_replace(coalesce(p_phone, ''), '\D', '', 'g'), 10);
+begin
+  if (select auth.uid()) is null then raise exception 'Sign in first'; end if;
+  if coalesce((select value #>> '{}' from public.settings where key = 'login_mode'), 'otp') <> 'open' then
+    raise exception 'Open mode is switched off. Sign in with the SMS code.';
+  end if;
+  if digits !~ '^[6-9][0-9]{9}$' then raise exception 'Enter a 10-digit mobile number'; end if;
+  select * into p from public.providers where right(regexp_replace(coalesce(mobile, ''), '\D', '', 'g'), 10) = digits
+    order by (status = 'verified') desc limit 1;
+  if p.id is null then raise exception 'No photographer account found for this mobile number. Ask ClickBreeze to enroll you.'; end if;
+  if p.status <> 'verified' then raise exception 'Your account is %. You can bid after ClickBreeze verifies you.', replace(p.status, '_', ' '); end if;
+  update public.providers set user_id = (select auth.uid()) where id = p.id;
+  return public.my_provider();
+end $$;
+
 create or replace function public.my_provider()
 returns jsonb language sql stable security definer set search_path = '' as $$
   select jsonb_build_object('id', p.id, 'name', coalesce(p.studio_name, p.full_name), 'person', p.full_name, 'type', p.type,
@@ -441,11 +469,11 @@ do $$
 declare f text;
 begin
   foreach f in array array[
-    'app_config()', 'my_customer()', 'ensure_customer(text,uuid)',
+    'app_config()', 'my_customer()', 'ensure_customer(text,text,uuid)',
     'post_requirement(text,date,uuid,text,text,double precision,double precision,text)', 'my_requirements()',
     'requirement_bids(uuid)', 'confirm_bid(uuid)', 'reject_bid(uuid)', 'cancel_requirement(uuid)', 'block_provider(uuid)',
     'unblock_provider(uuid)', 'my_blocks()', 'customer_bookings()', 'raise_dispute(uuid,text,text)',
-    'link_provider()', 'my_provider()', 'set_provider_location(double precision,double precision,integer,text)',
+    'link_provider()', 'link_provider_open(text)', 'my_provider()', 'set_provider_location(double precision,double precision,integer,text)',
     'provider_feed()', 'place_bid(uuid,integer,text)', 'withdraw_bid(uuid)', 'my_bids()', 'provider_bookings()', 'mark_delivered(uuid)'
   ] loop
     execute format('revoke all on function public.%s from public, anon', f);

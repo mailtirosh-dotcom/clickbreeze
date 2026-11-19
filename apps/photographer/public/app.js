@@ -13,9 +13,15 @@
   async function start() {
     try {
       var s = await A.session();
-      if (!s) return A.signInScreen(root, "Photographer sign in", start);
+      if (!s && !A.open) return A.signInScreen(root, "Photographer sign in", start);
+      if (!s) return A.openLinkScreen(root, "Photographer sign in", start);
       A.config = await A.rpc("app_config");
-      try { me = await A.rpc("link_provider"); } catch (e) { return problem(e, true); }
+      if (A.open) {
+        me = await A.rpc("my_provider");
+        if (!me) return A.openLinkScreen(root, "Photographer sign in", start);
+      } else {
+        try { me = await A.rpc("link_provider"); } catch (e) { return problem(e, true); }
+      }
       A.shell(root, [
         { id: "nearby", label: "Nearby", render: renderNearby },
         { id: "bids", label: "My bids", render: renderBids },
