@@ -16,7 +16,7 @@ function serve(dir) {
 const STUB = `window.supabase={createClient:function(){var S=JSON.parse(localStorage.getItem('S')||'{"in":0}');
 return {auth:{signInAnonymously:async()=>{if(window.__noAnon)return {error:{message:'disabled'}};S.in=1;localStorage.setItem('S',JSON.stringify(S));return {data:{}}},getSession:async()=>({data:{session:S.in?{user:{id:'u'}}:null}}),
  signInWithOtp:async(a)=>{window.__otp=a;return {}},
- verifyOtp:async(a)=>{ if(a.token!=='123456') return {error:{message:'bad'}}; S.in=1;localStorage.setItem('S',JSON.stringify(S));return {data:{}} },
+ verifyOtp:async(a)=>{ if(a.token_hash!=='th') return {error:{message:'bad'}}; S.in=1;localStorage.setItem('S',JSON.stringify(S));return {data:{}} },
  signOut:async()=>{localStorage.removeItem('S');return {}}},
  rpc:async(n,a)=>{ try{ return {data:await window.__rpc(n,a||{})} }catch(e){ return {error:{message:e.message}} } },
  from:(t)=>{var b={select:()=>b,eq:()=>b,order:()=>b,then:(res,rej)=>window.__table(t).then(d=>res({data:d,error:null}),rej)};return b;}};}};`;
@@ -25,7 +25,7 @@ let fails = 0; const ok = (n, c, x) => { console.log((c ? "PASS " : "FAIL ") + n
 
 (async () => {
   const browser = await chromium.launch({ args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
-  const calls = [];
+  const calls = []; const window_calls = [];
   const db = {
     customer: null, booked: false, blocked: false,
     reqs: [{ id: "r1", seq: 1, event_type: "Wedding", event_date: "2027-01-10", reach: "town", status: "open", closes_at: new Date(Date.now() + 20 * 36e5).toISOString(), town: "Melur", district: "Madurai", area_name: "Murugan Mahal", notes: "Evening", venue_lat: 9.84, venue_lng: 78.34, bids_count: 2, lowest: 8500, booking_id: null }],
@@ -70,7 +70,9 @@ let fails = 0; const ok = (n, c, x) => { console.log((c ? "PASS " : "FAIL ") + n
   async function open(dir, name, login) {
     const server = await serve(dir); const port = server.address().port;
     const ctx = await browser.newContext({ viewport: { width: 400, height: 800 }, permissions: ["geolocation"], geolocation: { latitude: 9.9, longitude: 78.1 } });
-    await ctx.route("**/config.js", r => r.fulfill({ contentType: "text/javascript", body: "window.CB_CONFIG={url:'https://x.supabase.co',key:'k',login:'" + (login || "otp") + "'}" }));
+    await ctx.route("**/config.js", r => r.fulfill({ contentType: "text/javascript", body: "window.CB_CONFIG={url:'https://x.supabase.co',key:'k',login:'" + (login || "msg91") + "',msg91:{widgetId:'w',tokenAuth:'t'}}" }));
+    await ctx.route("**/verify.msg91.com/otp-provider.js", r => r.fulfill({ contentType: "text/javascript", body: "window.initSendOTP=function(c){window.__wid=c.widgetId;window.sendOtp=function(id,ok,bad){window.__sent=id;ok({type:'success',message:'req123'})};window.retryOtp=function(ch,ok){window.__retry=1;ok({type:'success'})};window.verifyOtp=function(o,ok,bad){o==='123456'?ok({type:'success',message:'aaaaaaaaaaaaaaaaaaaaaaaa.bbbbbbbbbbbbbbbbbbbbbbbb.cccccccccccccccc'}):bad({message:'OTP not match'})}}" }));
+    await ctx.route("**/functions/v1/msg91-login", r => { const b = JSON.parse(r.request().postData() || "{}"); window_calls.push(b); r.fulfill({ contentType: "application/json", status: b.phone === "9876543210" || b.phone === "9876500001" ? 200 : 401, body: JSON.stringify({ token_hash: "th" }) }); });
     await ctx.route("**/vendor/supabase.js", r => r.fulfill({ contentType: "text/javascript", body: STUB }));
     await ctx.route("**/tiles.openfreemap.org/**", r => r.fulfill({ contentType: "application/json", body: JSON.stringify(STYLE) }));
     await ctx.route("**/photon.komoot.io/**", r => r.fulfill({ contentType: "application/json", body: JSON.stringify({ features: [
@@ -93,10 +95,11 @@ let fails = 0; const ok = (n, c, x) => { console.log((c ? "PASS " : "FAIL ") + n
     ok("customer: sign-in screen shown", /Customer sign in/.test(await p.textContent("body")));
     await p.fill("#ph", "12345"); await p.click("text=Send code"); ok("customer: bad number rejected", /10-digit/.test(await p.textContent(".err")));
     await p.fill("#ph", "9876543210"); await p.click("text=Send code"); await p.waitForSelector("#otp");
-    ok("customer: OTP requested for +91 number", await p.evaluate(() => window.__otp.phone) === "+919876543210");
+    ok("customer: MSG91 widget asked to send to 91 + number", await p.evaluate(() => window.__sent) === "919876543210" && await p.evaluate(() => window.__wid) === "w");
     await p.fill("#otp", "000000"); await p.click("text=Verify and continue"); await p.waitForTimeout(200);
     ok("customer: wrong code message", /not correct/.test(await p.textContent("body")));
     await p.fill("#otp", "123456"); await p.click("text=Verify and continue"); await p.waitForSelector("#nm");
+    ok("customer: access token and number sent to the login function", window_calls.length === 1 && window_calls[0].phone === "9876543210" && /^a+\.b+\.c+$/.test(window_calls[0].accessToken));
     await p.fill("#nm", "Anu"); await p.click("text=Continue"); await p.waitForSelector(".card");
     ok("customer: requests list", /Wedding/.test(await p.textContent(".view")) && /2 bids · from ₹8,500/.test(await p.textContent(".view")));
     await p.click(".card.tap"); await p.waitForSelector("text=2 bids so far");

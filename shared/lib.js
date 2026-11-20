@@ -76,37 +76,100 @@
   A.telUrl = function (n) { return "tel:+91" + String(n).replace(/\D/g, "").slice(-10); };
 
   // ---------- sign in with mobile OTP ----------
+  // ---------- MSG91 OTP widget (login: "msg91") ----------
+  var widgetReady = null;
+  function loadWidget() {
+    if (widgetReady) return widgetReady;
+    widgetReady = new Promise(function (resolve, reject) {
+      var m = cfg.msg91 || {};
+      window.__cbWidget = { widgetId: m.widgetId, tokenAuth: m.tokenAuth, exposeMethods: true,
+        success: function () {}, failure: function () {} };
+      var sc = document.createElement("script");
+      sc.src = "https://verify.msg91.com/otp-provider.js";
+      sc.onload = function () {
+        try { window.initSendOTP(window.__cbWidget); } catch (e) { return reject(e); }
+        var tries = 0, t = setInterval(function () {
+          if (typeof window.sendOtp === "function") { clearInterval(t); resolve(); }
+          else if (++tries > 50) { clearInterval(t); reject(new Error("The SMS service did not start.")); }
+        }, 100);
+      };
+      sc.onerror = function () { widgetReady = null; reject(new Error("Could not reach the SMS service. Check your internet.")); };
+      document.head.appendChild(sc);
+    });
+    return widgetReady;
+  }
+  function widgetCall(fn, args) {
+    return new Promise(function (resolve, reject) {
+      window[fn].apply(null, args.concat([resolve, function (e) { reject(new Error(errText(e))); }]));
+    });
+  }
+  function errText(e) {
+    if (!e) return "Something went wrong.";
+    if (typeof e === "string") return e;
+    return e.message || e.msg || e.error || "Something went wrong.";
+  }
+  function findToken(d) {
+    var found = null;
+    (function walk(v) {
+      if (found || v == null) return;
+      if (typeof v === "string") { if (/^[\w-]+\.[\w-]+\.[\w-]+$/.test(v) && v.length > 40) found = v; }
+      else if (typeof v === "object") Object.keys(v).forEach(function (k) { walk(v[k]); });
+    })(d);
+    return found;
+  }
+  async function exchange(token, number) {
+    var res = await fetch(cfg.url + "/functions/v1/msg91-login", {
+      method: "POST", headers: { "Content-Type": "application/json", apikey: cfg.key, Authorization: "Bearer " + cfg.key },
+      body: JSON.stringify({ accessToken: token, phone: number })
+    });
+    var j = await res.json().catch(function () { return {}; });
+    if (!res.ok || !j.token_hash) throw new Error(j.error || "Could not sign you in.");
+    var r = await sb.auth.verifyOtp({ token_hash: j.token_hash, type: "magiclink" });
+    if (r.error) throw new Error("Could not sign you in. " + r.error.message);
+  }
+
   A.signInScreen = function (root, title, onDone) {
     A.clear(root);
     var msg = h("p", { class: "err", role: "alert" });
     var phone = h("input", { id: "ph", type: "tel", inputmode: "numeric", maxlength: "10", autocomplete: "tel-national", placeholder: "10-digit mobile number" });
-    var code = h("input", { id: "otp", type: "text", inputmode: "numeric", maxlength: "6", autocomplete: "one-time-code", placeholder: "6-digit code" });
+    var code = h("input", { id: "otp", type: "text", inputmode: "numeric", maxlength: "6", autocomplete: "one-time-code", placeholder: "OTP from the SMS" });
     var sendBtn = h("button", { class: "btn", type: "submit", text: "Send code" });
     var verifyBtn = h("button", { class: "btn", type: "submit", text: "Verify and continue" });
     var number = "";
     var f1 = h("form", { class: "stack" },
       h("label", { for: "ph", text: "Mobile number" }),
       h("div", { class: "phone" }, h("span", { text: "+91" }), phone), sendBtn);
+    var resend = h("button", { class: "link", type: "button", text: "Send the code again", onclick: async function () {
+      msg.textContent = ""; try { await widgetCall("retryOtp", [null]); A.toast("Code sent again."); } catch (e) { msg.textContent = e.message; } } });
     var f2 = h("form", { class: "stack", hidden: true },
-      h("label", { for: "otp", text: "Code sent by SMS" }), code, verifyBtn,
+      h("label", { for: "otp", text: "Code sent by SMS" }), code, verifyBtn, resend,
       h("button", { class: "link", type: "button", text: "Use a different number", onclick: function () { f2.hidden = true; f1.hidden = false; msg.textContent = ""; } }));
     f1.addEventListener("submit", async function (e) {
       e.preventDefault(); msg.textContent = "";
       var n = phone.value.replace(/\D/g, "");
       if (!/^[6-9]\d{9}$/.test(n)) { msg.textContent = "Enter a 10-digit Indian mobile number."; return; }
       sendBtn.disabled = true;
-      var r = await sb.auth.signInWithOtp({ phone: "+91" + n });
+      try {
+        await loadWidget();
+        await widgetCall("sendOtp", ["91" + n]);
+        number = n; f1.hidden = true; f2.hidden = false; code.focus();
+      } catch (x) { msg.textContent = "Could not send the code. " + x.message; }
       sendBtn.disabled = false;
-      if (r.error) { msg.textContent = "Could not send the code. " + r.error.message; return; }
-      number = "+91" + n; f1.hidden = true; f2.hidden = false; code.focus();
     });
     f2.addEventListener("submit", async function (e) {
       e.preventDefault(); msg.textContent = "";
+      if (!code.value.trim()) { msg.textContent = "Enter the code from the SMS."; return; }
       verifyBtn.disabled = true;
-      var r = await sb.auth.verifyOtp({ phone: number, token: code.value.trim(), type: "sms" });
+      try {
+        var d;
+        try { d = await widgetCall("verifyOtp", [code.value.trim()]); }
+        catch (x) { code.value = ""; throw new Error("That code is not correct. Check the SMS and try again."); }
+        var token = findToken(d);
+        if (!token) throw new Error("The SMS service gave an unexpected answer. Please try again.");
+        await exchange(token, number);
+        onDone();
+      } catch (x) { msg.textContent = x.message; }
       verifyBtn.disabled = false;
-      if (r.error) { msg.textContent = "That code is not correct. Check the SMS and try again."; code.value = ""; return; }
-      onDone();
     });
     root.appendChild(h("main", { class: "auth" },
       h("img", { class: "logo", src: "logo.png", alt: "ClickBreeze" }),
@@ -114,6 +177,7 @@
       h("p", { class: "muted", text: "We will send a code to your mobile number." }),
       f1, f2, msg));
   };
+
   A.open = (cfg.login === "open");
   // Open mode: a private anonymous session is created on this phone (no SMS). Needs "Allow anonymous sign-ins" in Supabase.
   A.anonymous = async function () {

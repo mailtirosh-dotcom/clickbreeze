@@ -18,3 +18,8 @@ GitHub > Actions > "Build Android APKs" > Run workflow. When it finishes, downlo
 
 ## Local checks
 `npm install` in an app folder, `node scripts/build.js customer`, then `node tests/apps.test.js` (needs Playwright).
+
+## SMS login with MSG91 (login: "msg91")
+`shared/config.js` holds the MSG91 widget id and token (public values). The secret `MSG91_AUTHKEY` lives only in Supabase
+(Edge Functions > Secrets). Deploy `supabase/functions/msg91-login` with "Verify JWT" OFF. After login works, run
+`update public.settings set value='"otp"' where key='login_mode';` to close the no-login shortcut, then turn off anonymous sign-ins.
