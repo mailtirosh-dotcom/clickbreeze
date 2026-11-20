@@ -139,6 +139,9 @@ declare digits text := nullif(private.phone_digits(), '');
 begin
   if (select auth.uid()) is null then raise exception 'Sign in first'; end if;
   if length(trim(coalesce(p_name, ''))) < 2 then raise exception 'Enter your name'; end if;
+  if digits is null and nullif(trim(coalesce(p_phone, '')), '') is null then
+    select phone into digits from public.customers where user_id = (select auth.uid());
+  end if;
   if digits is null then
     digits := right(regexp_replace(coalesce(p_phone, ''), '\D', '', 'g'), 10);
     if digits !~ '^[6-9][0-9]{9}$' then raise exception 'Enter a 10-digit mobile number'; end if;

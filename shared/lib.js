@@ -272,7 +272,7 @@
       var parts = (location.hash || "").replace(/^#\/?/, "").split("/");
       var t = tabs.filter(function (x) { return x.id === parts[0]; })[0] || tabs[0];
       Array.prototype.forEach.call(nav.children, function (a) { a.setAttribute("aria-current", a.getAttribute("data-tab") === t.id ? "page" : "false"); });
-      A.clear(view); view.scrollTop = 0;
+      A.clear(view); view.className = "view"; view.scrollTop = 0;
       Promise.resolve(t.render(view, parts.slice(1))).catch(A.fail);
     }
     window.addEventListener("hashchange", route);

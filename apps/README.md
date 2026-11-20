@@ -18,8 +18,3 @@ GitHub > Actions > "Build Android APKs" > Run workflow. When it finishes, downlo
 
 ## Local checks
 `npm install` in an app folder, `node scripts/build.js customer`, then `node tests/apps.test.js` (needs Playwright).
-
-## Testing mode (no SMS login)
-`shared/config.js` has `login: "open"`. Customers enter name + mobile; photographers enter the mobile number ClickBreeze enrolled.
-Needs Supabase > Authentication > Sign In / Providers > "Allow anonymous sign-ins" ON. Not secure for real use:
-when SMS is ready set `login: "otp"` in `shared/config.js` and `update settings set value='"otp"' where key='login_mode';`.

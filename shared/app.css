@@ -59,3 +59,47 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 .logo{mix-blend-mode:multiply;width:160px;height:auto;align-self:center;margin-bottom:8px}
 .theme-green{--or:#15803D;--or2:#4ADE80}
 .theme-green .chip[aria-pressed=true]{background:#F0FDF4;color:#166534}
+
+/* ---- customer redesign (from ClickBreeze Screens) ---- */
+.view.flush{padding:0;max-width:720px}
+.pad{padding:16px}
+.hero{background:var(--dk);color:#fff;padding:12px 16px 16px;display:flex;flex-direction:column;gap:8px}
+.hero h1{margin:0;font-size:26px}.hero-sub{font-size:13px;color:#D6D3D1}
+.back{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;margin-left:-12px;font-size:30px;line-height:1;color:var(--dk);text-decoration:none}
+.back.light{color:#fff}
+.tag{padding:4px 10px;border-radius:999px;background:#44403C;color:#fff;font-size:13px}.tag.hot{background:var(--or);font-weight:700}
+.tabs2{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#292524;padding:4px;border-radius:10px}
+.tabs2 button{min-height:40px;border:0;border-radius:8px;background:transparent;color:#E7E5E4;font-weight:600;cursor:pointer}
+.tabs2 button[aria-selected=true]{background:var(--or);color:#fff}
+.bid{background:#fff;border:1px solid var(--ln);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.bid.best{border:2px solid var(--or)}
+.row.nowrap{flex-wrap:nowrap}.row.top{align-items:flex-start}.row.end{align-items:flex-end}.row.two>*{flex:1}
+.avatar{width:44px;height:44px;border-radius:50%;background:var(--ln);color:#44403C;display:flex;align-items:center;justify-content:center;font-weight:800;flex:none}
+.avatar.big{width:52px;height:52px}
+.low{font-size:12px;font-weight:700;color:#166534;background:#DCFCE7;padding:3px 8px;border-radius:999px}
+.theme-green .low{background:#DCFCE7}
+.line{border-top:1px solid var(--bg);padding-top:2px}
+.quiet{min-height:44px;border:0;background:none;font-weight:700;color:var(--gr);cursor:pointer;padding:0 8px}.quiet.red{color:var(--rd)}
+.btn.red{background:var(--rd)}.btn.outline{background:#fff;color:var(--dk);border:1px solid var(--dk)}
+.bar{background:#fff;border-bottom:1px solid var(--ln);padding:8px 8px;display:flex;align-items:center;gap:4px}.bar .back{margin:0}.bar-t{font-weight:700;font-size:17px}
+.panel{background:#fff;border:1px solid var(--ln);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.cap{font-size:13px;color:var(--gr);margin:0;letter-spacing:.3px}
+.tokenrow{padding:10px 12px;border-radius:8px;background:#F0FDF4;border:1px solid #86EFAC}
+.bul{margin:0;padding-left:20px;font-size:14px;color:#44403C;display:flex;flex-direction:column;gap:6px}
+.center{text-align:center}
+.okhead{background:var(--tl);color:#fff;padding:12px 20px 24px;display:flex;flex-direction:column;gap:8px}
+.okhead h1{margin:0;font-size:26px}.okhead p{margin:0;color:#CCFBF1;font-size:15px}
+.tick{width:48px;height:48px;border-radius:50%;background:#fff;color:var(--tl);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800}
+.big{font-size:18px}.phonebig{font-size:24px;font-weight:800;letter-spacing:.5px}
+.kv.wide{grid-template-columns:110px 1fr;row-gap:8px}
+.steps{list-style:none;margin:0;padding:16px;background:#fff;border:1px solid var(--ln);border-radius:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center;font-size:13px}
+.steps li{padding:8px 4px;border-radius:8px;background:var(--bg);color:var(--gr)}.steps li.on{background:#CCFBF1;color:var(--tl);font-weight:700}
+.lang{display:flex;gap:4px;background:#F5F5F4;padding:3px;border-radius:999px}
+.lang button{min-height:40px;padding:0 14px;border:0;border-radius:999px;background:transparent;cursor:pointer;font-size:14px}
+.lang button[aria-pressed=true]{background:var(--dk);color:#fff;font-weight:700}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.chip.cell{display:flex;align-items:center;justify-content:center;border-radius:10px;min-height:48px;padding:0 4px;font-size:14px}
+.seg3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;background:#F5F5F4;padding:4px;border-radius:10px}
+.seg3 .chip{border:0;border-radius:8px;background:transparent}
+.seg3 .chip[aria-pressed=true]{background:var(--dk);color:#fff}
+.theme-green .seg3 .chip[aria-pressed=true]{background:var(--dk);color:#fff}

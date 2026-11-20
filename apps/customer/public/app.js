@@ -2,6 +2,36 @@
 (function () {
   var A = CBA, h = A.h, root = document.getElementById("app");
   var towns = [], cats = [], me = null;
+  var lang = "en"; try { lang = localStorage.getItem("cb_lang") || "en"; } catch (e) {}
+  var TA = {
+    "Requests": "கோரிக்கைகள்", "Post": "பதிவிடு", "Bookings": "முன்பதிவுகள்", "Me": "நான்",
+    "What do you need shot?": "என்ன படம் எடுக்க வேண்டும்?", "Step 1 of 2": "படி 1 / 2", "Event type": "நிகழ்வு வகை", "Event date": "நிகழ்வு தேதி",
+    "District": "மாவட்டம்", "Town or village": "நகரம் / கிராமம்", "Who can bid first?": "முதலில் யார் ஏலம் எடுக்கலாம்?",
+    "Town": "நகரம்", "District ": "மாவட்டம்", "State": "மாநிலம்", "Post and get bids": "பதிவிட்டு ஏலங்களைப் பெறு",
+    "bids so far": "ஏலங்கள் வந்துள்ளன", "bid so far": "ஏலம் வந்துள்ளது", "List": "பட்டியல்", "Map": "வரைபடம்", "Confirm bid": "ஏலத்தை உறுதி செய்",
+    "Reject offer": "நிராகரி", "Block photographer": "தடுக்கவும்", "Lowest": "குறைவு", "Sorted by lowest bid · contacts shown after you confirm": "குறைந்த ஏலம் முதலில் · உறுதி செய்த பிறகே தொடர்பு எண் தெரியும்",
+    "Confirm booking": "முன்பதிவை உறுதி செய்", "HOW YOU PAY": "எப்படி செலுத்துவது", "Agreed price": "ஒப்புக்கொண்ட விலை",
+    "Booking token · pay now": "முன்பதிவு டோக்கன் · இப்போது செலுத்து", "Balance · pay photographer on shoot day": "மீதித் தொகை · படப்பிடிப்பு நாளில் செலுத்துக",
+    "Booking confirmed": "முன்பதிவு உறுதியானது", "Call": "அழை", "WhatsApp": "வாட்ஸ்அப்", "Get directions to studio": "ஸ்டுடியோவுக்கு வழி",
+    "Block": "தடு", "Cancel": "ரத்து", "Report a problem": "சிக்கலைத் தெரிவி", "My requests": "என் கோரிக்கைகள்"
+  };
+  function T(k) { return (lang === "ta" && TA[k]) || k; }
+  function langSeg() {
+    function set(l) { lang = l; try { localStorage.setItem("cb_lang", l); } catch (e) {} start(); }
+    return h("div", { class: "lang", role: "group", "aria-label": "Language" },
+      h("button", { type: "button", "aria-pressed": String(lang === "en"), text: "English", onclick: function () { set("en"); } }),
+      h("button", { type: "button", "aria-pressed": String(lang === "ta"), text: "தமிழ்", onclick: function () { set("ta"); } }));
+  }
+  function kmBetween(a, b, c, d) {
+    var R = 6371, rad = Math.PI / 180, dLat = (c - a) * rad, dLng = (d - b) * rad;
+    var x = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(a * rad) * Math.cos(c * rad) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+  }
+  function avatar(name, big) { return h("div", { class: "avatar" + (big ? " big" : ""), "aria-hidden": "true", text: (name || "?").trim().charAt(0).toUpperCase() }); }
+  function pageHead(title, backHash) {
+    return h("header", { class: "bar" }, h("a", { class: "back", href: backHash, "aria-label": "Back", text: "‹" }), h("div", { class: "bar-t", text: title }));
+  }
+  var REACH = { town: "Town", district: "District", state: "State" };
 
   function problem(e) {
     A.clear(root);
@@ -21,10 +51,10 @@
       if (t.error) throw t.error; if (c.error) throw c.error;
       towns = t.data; cats = c.data.map(function (x) { return x.name; });
       A.shell(root, [
-        { id: "requests", label: "Requests", render: renderRequests },
-        { id: "post", label: "Post", render: renderPost },
-        { id: "bookings", label: "Bookings", render: renderBookings },
-        { id: "me", label: "Me", render: renderMe }
+        { id: "requests", label: T("Requests"), render: renderRequests },
+        { id: "post", label: T("Post"), render: renderPost },
+        { id: "bookings", label: T("Bookings"), render: renderBookings },
+        { id: "me", label: T("Me"), render: renderMe }
       ], "Customer");
     } catch (e) { problem(e); }
   }
@@ -45,7 +75,7 @@
 
   // ---------- Requests ----------
   async function renderRequests(view, parts) {
-    if (parts[0]) return renderRequest(view, parts[0]);
+    if (parts[0]) return renderRequest(view, parts);
     view.appendChild(h("h1", { text: "My requests" }));
     A.loading(view);
     var list = await A.rpc("my_requirements");
@@ -66,72 +96,96 @@
     });
   }
 
-  async function renderRequest(view, id) {
+  async function renderRequest(view, parts) {
+    var id = parts[0];
+    if (parts[1] === "pay") return renderPay(view, id, parts[2]);
+    view.classList.add("flush");
     A.loading(view);
     var list = await A.rpc("my_requirements");
     var r = list.filter(function (x) { return x.id === id; })[0];
     A.clear(view);
-    view.appendChild(h("a", { class: "link", href: "#/requests", text: "← My requests" }));
-    if (!r) { view.appendChild(A.empty("Requirement not found.")); return; }
+    if (!r) { view.classList.remove("flush"); view.appendChild(h("a", { class: "link", href: "#/requests", text: "← " + T("My requests") })); view.appendChild(A.empty("Requirement not found.")); return; }
     var open = r.status === "open" || r.status === "widened";
-    view.appendChild(h("div", { class: "row between" }, h("h1", { text: r.event_type + " · " + A.date(r.event_date) }), A.badge(r.status)));
-    view.appendChild(h("p", { class: "muted", text: (r.area_name || r.town || "") + ", " + (r.district || "") + " · reach: " + r.reach + (open ? " · " + A.left(r.closes_at) : "") }));
-    if (r.notes) view.appendChild(h("p", { text: r.notes }));
-
-    if (r.status === "confirmed") {
-      view.appendChild(h("div", { class: "notice", text: "Booked. The photographer's phone number is in Bookings." }));
-      view.appendChild(h("a", { class: "btn", href: "#/bookings", text: "Open booking" }));
+    var where = (r.area_name || r.town || "") + (r.district ? ", " + r.district : "");
+    if (r.status === "confirmed" || !open) {
+      view.classList.remove("flush");
+      view.appendChild(h("a", { class: "link", href: "#/requests", text: "← " + T("My requests") }));
+      view.appendChild(h("div", { class: "row between" }, h("h1", { text: r.event_type + " · " + A.date(r.event_date) }), A.badge(r.status)));
+      view.appendChild(h("p", { class: "muted", text: where }));
+      if (r.status === "confirmed") {
+        view.appendChild(h("div", { class: "notice", text: "Booked. The photographer's phone number is in Bookings." }));
+        view.appendChild(h("a", { class: "btn", href: "#/bookings", text: "Open booking" }));
+      }
       return;
     }
-    if (!open) return;
 
     var bids = await A.rpc("requirement_bids", { p_req: id });
     var mode = "list", selected = null, map = null, markers = [];
-    var body = h("div", { class: "stack" });
-    var seg = h("div", { class: "seg", role: "group", "aria-label": "View" });
-    var bList = h("button", { type: "button", text: "List", "aria-pressed": "true" });
-    var bMap = h("button", { type: "button", text: "Map", "aria-pressed": "false" });
-    seg.appendChild(bList); seg.appendChild(bMap);
-    view.appendChild(h("h2", { text: bids.length ? bids.length + (bids.length === 1 ? " bid" : " bids") + ", lowest first" : "Waiting for bids" }));
-    if (bids.length) view.appendChild(seg);
+    var hero = h("header", { class: "hero" },
+      h("a", { class: "back light", href: "#/requests", "aria-label": "Back", text: "‹" }),
+      h("div", { class: "hero-sub", text: r.event_type + " · " + A.date(r.event_date) + " · " + (r.town || "") }),
+      h("h1", { text: bids.length ? bids.length + " " + T(bids.length === 1 ? "bid so far" : "bids so far") : "Waiting for bids" }),
+      h("div", { class: "row" },
+        h("span", { class: "tag hot", text: "Open in " + (REACH[r.reach] || r.reach).toLowerCase() }),
+        h("span", { class: "tag", text: A.left(r.closes_at) })));
+    var bList = h("button", { type: "button", role: "tab", "aria-selected": "true", text: T("List") });
+    var bMap = h("button", { type: "button", role: "tab", "aria-selected": "false", text: T("Map") });
+    if (bids.length) hero.appendChild(h("div", { class: "tabs2", role: "tablist", "aria-label": "View" }, bList, bMap));
+    view.appendChild(hero);
+    var body = h("div", { class: "pad stack" });
     view.appendChild(body);
     if (!bids.length) body.appendChild(A.empty("No bids yet. Nearby photographers have been notified. Check back soon."));
-    view.appendChild(h("button", { class: "btn danger", type: "button", text: "Cancel this requirement", onclick: function () {
+    body.appendChild(h("button", { class: "btn danger", type: "button", text: "Cancel this requirement", onclick: function () {
       A.ask("Cancel this requirement? Photographers will no longer see it.", "Cancel requirement", async function () {
         try { await A.rpc("cancel_requirement", { p_req: id }); A.toast("Cancelled."); A.go("#/requests"); } catch (e) { A.fail(e); }
       });
     } }));
+    var holder = h("div", { class: "stack" });
+    body.insertBefore(holder, body.firstChild);
 
-    function refresh() { renderRequest(A.clear(view), id).catch(A.fail); }
-    function choose(b) {
-      var pay = A.config.payment_mode === "test" ? " Test mode: no real payment is taken." : "";
-      A.ask("Choose " + b.name + " for " + A.inr(b.amount) + "? A token of " + A.inr(A.config.token_amount) + " is recorded and phone numbers are shared." + pay, "Confirm booking", async function () {
-        try { await A.rpc("confirm_bid", { p_bid: b.bid_id }); A.toast("Booked."); A.go("#/bookings"); } catch (e) { A.fail(e); }
-      });
-    }
+    function refresh() { renderRequest(A.clear(view), parts).catch(A.fail); }
     function reject(b) {
       A.ask("Reject " + b.name + "'s offer?", "Reject", async function () { try { await A.rpc("reject_bid", { p_bid: b.bid_id }); A.toast("Rejected."); refresh(); } catch (e) { A.fail(e); } });
     }
-    function block(b) {
-      A.ask("Block " + b.name + "? You will not see their bids again and they will not see your requests.", "Block", async function () { try { await A.rpc("block_provider", { p_provider: b.provider_id }); A.toast("Blocked."); refresh(); } catch (e) { A.fail(e); } });
+    function blockSheet(b) {
+      var dlg = A.sheet([
+        h("h2", { text: "Block " + b.name + "?" }),
+        h("ul", { class: "bul" },
+          h("li", { text: "Their bid on this requirement is removed." }),
+          h("li", { text: "They won't see or bid on your future requirements." }),
+          h("li", { text: "They are not told who blocked them." }),
+          h("li", { text: "Unblock anytime in Me › Blocked photographers." })),
+        h("div", { class: "row two" },
+          h("button", { class: "btn ghost", type: "button", text: T("Cancel"), onclick: function () { dlg.close(); } }),
+          h("button", { class: "btn red", type: "button", text: T("Block"), onclick: async function () {
+            try { await A.rpc("block_provider", { p_provider: b.provider_id }); dlg.close(); A.toast("Blocked."); refresh(); } catch (e) { A.fail(e); }
+          } }))]);
     }
-    function bidCard(b) {
-      return h("div", { class: "card" },
-        h("div", { class: "row between" }, h("strong", { text: b.name }), h("span", { class: "price", text: A.inr(b.amount) })),
-        h("div", { class: "muted", text: (b.type === "studio" ? "Studio" : "Photographer") + (b.experience_years != null ? " · " + b.experience_years + " years" : "") + (b.package ? " · " + b.package : "") }),
-        h("div", { class: "row" },
-          h("button", { class: "btn small", type: "button", text: "Choose", onclick: function () { choose(b); } }),
-          h("button", { class: "btn small ghost", type: "button", text: "Reject", onclick: function () { reject(b); } }),
-          h("button", { class: "btn small danger", type: "button", text: "Block", onclick: function () { block(b); } })));
+    function bidCard(b, isLowest) {
+      var km = (r.venue_lat != null && b.approx_lat != null) ? Math.round(kmBetween(r.venue_lat, r.venue_lng, b.approx_lat, b.approx_lng)) : null;
+      return h("article", { class: "bid" + (isLowest ? " best" : "") },
+        h("div", { class: "row between top" },
+          h("div", { class: "row nowrap" }, avatar(b.name), h("div", null, h("strong", { text: b.name }),
+            h("div", { class: "muted", text: (b.type === "studio" ? "Studio" : "Individual") + (b.experience_years != null ? " · " + b.experience_years + " yrs" : "") + (km != null ? " · about " + km + " km" : "") }))),
+          isLowest ? h("span", { class: "low", text: T("Lowest") }) : null),
+        h("div", { class: "row between end" }, h("div", { class: "muted", text: b.package || "" }), h("div", { class: "price", text: A.inr(b.amount) })),
+        h("a", { class: "btn", href: "#/requests/" + id + "/pay/" + b.bid_id, text: T("Confirm bid") }),
+        h("div", { class: "row between line" },
+          h("button", { class: "quiet", type: "button", text: T("Reject offer"), onclick: function () { reject(b); } }),
+          h("button", { class: "quiet red", type: "button", text: T("Block photographer"), onclick: function () { blockSheet(b); } })));
     }
-    function drawList() { A.clear(body); bids.forEach(function (b) { body.appendChild(bidCard(b)); }); }
+    function drawList() {
+      A.clear(holder);
+      holder.appendChild(h("p", { class: "muted", text: T("Sorted by lowest bid · contacts shown after you confirm") }));
+      bids.forEach(function (b, i) { holder.appendChild(bidCard(b, i === 0 && bids.length > 1)); });
+    }
     function drawMap() {
-      A.clear(body);
+      A.clear(holder);
       var box = h("div", { class: "map", role: "region", "aria-label": "Bids on a map" });
       var detail = h("div");
-      body.appendChild(box);
-      body.appendChild(h("p", { class: "muted", text: "Circles show the approximate area of each photographer, not an exact address." }));
-      body.appendChild(detail);
+      holder.appendChild(box);
+      holder.appendChild(h("p", { class: "muted", text: "Circles show the approximate area. Exact address and contact appear after you confirm." }));
+      holder.appendChild(detail);
       var center = r.venue_lng != null ? [r.venue_lng, r.venue_lat] : A.TN_CENTER;
       map = A.newMap(box, { center: center, zoom: r.venue_lng != null ? 10 : 8 });
       if (!map) return;
@@ -142,14 +196,14 @@
         A.drawCircles(map, withPos.map(function (b) { return { lng: b.approx_lng, lat: b.approx_lat, km: 2, selected: selected === b.bid_id }; }));
         withPos.forEach(function (b) {
           markers.push(A.pill(map, { lng: b.approx_lng, lat: b.approx_lat, text: A.inr(b.amount), label: b.name + " " + A.inr(b.amount), selected: selected === b.bid_id,
-            onClick: function () { selected = b.bid_id; paint(); A.clear(detail); detail.appendChild(bidCard(b)); } }));
+            onClick: function () { selected = b.bid_id; paint(); A.clear(detail); detail.appendChild(bidCard(b, false)); } }));
         });
-        if (!withPos.length) A.clear(detail), detail.appendChild(h("p", { class: "muted", text: "These photographers have not set a map location. Use the list." }));
+        if (!withPos.length) { A.clear(detail); detail.appendChild(h("p", { class: "muted", text: "These photographers have not set a map location. Use the list." })); }
       }
       paint();
     }
     function setMode(m) {
-      mode = m; bList.setAttribute("aria-pressed", m === "list"); bMap.setAttribute("aria-pressed", m === "map");
+      mode = m; bList.setAttribute("aria-selected", String(m === "list")); bMap.setAttribute("aria-selected", String(m === "map"));
       if (map) { map.remove(); map = null; }
       if (m === "list") drawList(); else drawMap();
     }
@@ -158,17 +212,47 @@
     if (bids.length) drawList();
   }
 
+  // ---------- Confirm and pay token ----------
+  async function renderPay(view, id, bidId) {
+    A.loading(view);
+    var list = await A.rpc("my_requirements");
+    var r = list.filter(function (x) { return x.id === id; })[0];
+    var bids = await A.rpc("requirement_bids", { p_req: id });
+    var b = bids.filter(function (x) { return x.bid_id === bidId; })[0];
+    A.clear(view);
+    view.appendChild(pageHead(T("Confirm booking"), "#/requests/" + id));
+    if (!r || !b) { view.appendChild(A.empty("This bid is no longer available.")); return; }
+    var token = Number(A.config.token_amount), balance = Math.max(0, Number(b.amount) - token);
+    var pay = h("button", { class: "btn", type: "button", text: "Pay " + A.inr(token) + " & reveal contact" });
+    pay.addEventListener("click", async function () {
+      pay.disabled = true;
+      try { var kid = await A.rpc("confirm_bid", { p_bid: bidId }); A.toast("Booked."); A.go("#/bookings/" + kid); } catch (e) { A.fail(e); pay.disabled = false; }
+    });
+    view.appendChild(h("div", { class: "pad stack" },
+      h("section", { class: "panel" }, h("div", { class: "row nowrap" }, avatar(b.name), h("div", null, h("strong", { text: b.name }), h("div", { class: "muted", text: b.type === "studio" ? "Studio" : "Individual" }))),
+        h("div", { class: "muted", text: (b.package ? b.package + " · " : "") + r.event_type + " · " + A.date(r.event_date) })),
+      h("section", { class: "panel" }, h("h2", { class: "cap", text: T("HOW YOU PAY") }),
+        h("div", { class: "row between" }, h("span", { text: T("Agreed price") }), h("strong", { text: A.inr(b.amount) })),
+        h("div", { class: "row between tokenrow" }, h("strong", { text: T("Booking token · pay now") }), h("span", { class: "price", text: A.inr(token) })),
+        h("div", { class: "row between" }, h("span", { class: "muted", text: T("Balance · pay photographer on shoot day") }), h("strong", { text: A.inr(balance) }))),
+      h("section", { class: "panel" }, h("h2", { class: "cap", text: "IF PLANS CHANGE" }),
+        h("ul", { class: "bul" }, h("li", { text: "Photographer cancels: full token refund." }), h("li", { text: "If you cancel: ask ClickBreeze, as per its refund policy." }), h("li", { text: "Phone numbers are shared after you confirm." }))),
+      A.config.payment_mode === "test" ? h("div", { class: "notice", text: "Test mode: no real payment is taken. The token is only recorded." }) : null,
+      h("p", { class: "muted center", text: "Your other bids will be marked Not selected." }), pay));
+  }
+
   // ---------- Post ----------
   function renderPost(view) {
     var f = { event_type: cats[0] || "", date: "", reach: "town", district: "", town: "", notes: "", area: "", lng: null, lat: null };
     var districts = Array.from(new Set(towns.map(function (t) { return t.district; }))).sort();
-    view.appendChild(h("h1", { text: "Post a requirement" }));
+    view.appendChild(h("div", { class: "row between" }, h("div", { class: "muted", text: T("Step 1 of 2") }), langSeg()));
+    view.appendChild(h("h1", { text: T("What do you need shot?") }));
     if (!towns.length) { view.appendChild(A.empty("No towns are open yet. Please ask ClickBreeze to add your town.")); return; }
     view.appendChild(h("div", { class: "notice", text: "Photographers see only an approximate area (about " + A.config.approx_km + " km) until you confirm a booking." }));
 
-    var chips = h("div", { class: "chips", role: "group", "aria-label": "Event type" });
+    var chips = h("div", { class: "grid3", role: "group", "aria-label": "Event type" });
     cats.forEach(function (c) {
-      var b = h("button", { class: "chip", type: "button", text: c, "aria-pressed": String(c === f.event_type), onclick: function () {
+      var b = h("button", { class: "chip cell", type: "button", text: c, "aria-pressed": String(c === f.event_type), onclick: function () {
         f.event_type = c; Array.prototype.forEach.call(chips.children, function (x) { x.setAttribute("aria-pressed", String(x.textContent === c)); });
       } });
       chips.appendChild(b);
@@ -186,8 +270,8 @@
     }
     fillTowns();
 
-    var reachBox = h("div", { class: "chips", role: "group", "aria-label": "Who can bid" });
-    [["town", "My town only"], ["district", "Whole district"], ["state", "All Tamil Nadu"]].forEach(function (x) {
+    var reachBox = h("div", { class: "seg3", role: "group", "aria-label": "Who can bid" });
+    [["town", T("Town")], ["district", T("District ")], ["state", T("State")]].forEach(function (x) {
       reachBox.appendChild(h("button", { class: "chip", type: "button", text: x[1], "aria-pressed": String(f.reach === x[0]), onclick: function () {
         f.reach = x[0]; Array.prototype.forEach.call(reachBox.children, function (c) { c.setAttribute("aria-pressed", String(c.textContent === x[1])); });
       } }));
@@ -205,7 +289,7 @@
     var search = A.placeSearch("Search a town, village or area", function (p) { if (!area.value) { area.value = p.name; f.area = p.name; } placePin(p, true); });
     var locBtn = h("button", { class: "btn ghost small", type: "button", text: "Use my location", onclick: function () { A.locate(function (p) { placePin(p, true); }); } });
     var notes = h("textarea", { id: "nt", maxlength: "500", placeholder: "Anything the photographer should know", oninput: function () { f.notes = notes.value; } });
-    var submit = h("button", { class: "btn", type: "button", text: "Post requirement", onclick: async function () {
+    var submit = h("button", { class: "btn", type: "button", text: T("Post and get bids"), onclick: async function () {
       if (!f.event_type) return A.toast("Choose an event type.", true);
       if (!f.date) return A.toast("Choose the event date.", true);
       if (!f.town) return A.toast("Choose your district and town.", true);
@@ -218,11 +302,11 @@
     } });
 
     view.appendChild(h("div", { class: "stack" },
-      h("div", { class: "stack" }, h("strong", { text: "Event type" }), chips),
-      h("label", { for: "dt", text: "Event date" }, date),
-      h("label", { for: "ds", text: "District" }, dist),
-      h("label", { for: "tn", text: "Town or village" }, town),
-      h("div", { class: "stack" }, h("strong", { text: "Who can bid" }), reachBox, h("span", { class: "muted", text: "A wider reach usually brings more bids." })),
+      h("div", { class: "stack" }, h("strong", { text: T("Event type") }), chips),
+      h("label", { for: "dt", text: T("Event date") }, date),
+      h("label", { for: "ds", text: T("District") }, dist),
+      h("label", { for: "tn", text: T("Town or village") }, town),
+      h("div", { class: "stack" }, h("strong", { text: T("Who can bid first?") }), reachBox, h("span", { class: "muted", text: "No confirmed bid in time? A wider reach usually brings more bids." })),
       h("strong", { text: "Where is the event?" }), search, locBtn, mapBox,
       h("p", { class: "muted", text: "Tap the map or search to place the pin. Drag it to adjust. This is optional." }),
       h("label", { for: "ar", text: "Venue or area name" }, area),
@@ -233,27 +317,52 @@
   }
 
   // ---------- Bookings ----------
-  async function renderBookings(view) {
-    view.appendChild(h("h1", { text: "Bookings" }));
+  async function renderBookings(view, parts) {
     A.loading(view);
     var list = await A.rpc("customer_bookings");
-    A.clear(view); view.appendChild(h("h1", { text: "Bookings" }));
+    A.clear(view);
+    if (parts && parts[0]) {
+      var k = list.filter(function (x) { return x.id === parts[0]; })[0];
+      if (k) return bookedScreen(view, k);
+    }
+    view.appendChild(h("h1", { text: T("Bookings") }));
     if (!list.length) { view.appendChild(A.empty("No bookings yet. Choose a bid on one of your requests.")); return; }
     list.forEach(function (k) {
-      var dirs = k.provider_lat != null ? A.directionsUrl(k.provider_lat, k.provider_lng) : A.searchUrl((k.provider_address || k.provider_name) + " " + (k.town || ""));
-      view.appendChild(h("div", { class: "card" },
+      view.appendChild(h("div", { class: "card tap", tabindex: "0", role: "link", onclick: function () { A.go("#/bookings/" + k.id); }, onkeydown: function (e) { if (e.key === "Enter") A.go("#/bookings/" + k.id); } },
         h("div", { class: "row between" }, h("strong", { text: k.event_type + " · " + A.date(k.event_date) }), A.badge(k.status)),
-        h("div", { class: "price", text: A.inr(k.amount) }),
-        h("dl", { class: "kv" },
-          h("dt", { text: "Photographer" }), h("dd", { text: k.provider_name }),
-          h("dt", { text: "Package" }), h("dd", { text: k.package || "–" }),
-          h("dt", { text: "Token" }), h("dd", { text: A.inr(k.token_amount) + (k.token_paid ? " recorded" : " pending") }),
-          h("dt", { text: "Delivery by" }), h("dd", { text: k.delivered_at ? "Delivered " + A.date(k.delivered_at) : A.date(k.due_at) })),
-        h("div", { class: "row" },
-          h("a", { class: "btn small green", href: A.telUrl(k.provider_mobile), text: "Call " + k.provider_mobile }),
-          h("a", { class: "btn small ghost", href: dirs, target: "_blank", rel: "noopener", text: "Get directions" }),
-          h("button", { class: "btn small ghost", type: "button", text: "Report a problem", onclick: function () { reportSheet(k); } }))));
+        h("div", { class: "row between" }, h("span", { class: "muted", text: k.provider_name }), h("span", { class: "price", text: A.inr(k.amount) }))));
     });
+  }
+
+  function bookedScreen(view, k) {
+    view.classList.add("flush");
+    var dirs = k.provider_lat != null ? A.directionsUrl(k.provider_lat, k.provider_lng) : A.searchUrl((k.provider_address || k.provider_name) + " " + (k.town || ""));
+    var wa = "https://wa.me/91" + String(k.provider_mobile || "").replace(/\D/g, "").slice(-10);
+    var balance = Math.max(0, Number(k.amount) - Number(k.token_amount || 0));
+    var done = k.status === "delivered" || !!k.delivered_at;
+    view.appendChild(h("header", { class: "okhead" },
+      h("a", { class: "back light", href: "#/bookings", "aria-label": "Back", text: "‹" }),
+      h("div", { class: "tick", "aria-hidden": "true", text: "✓" }),
+      h("h1", { text: T("Booking confirmed") }),
+      h("p", { text: "Your photographer has been notified. Call them to finalise the venue and timing." })));
+    view.appendChild(h("div", { class: "pad stack" },
+      h("section", { class: "panel stack" },
+        h("div", { class: "row nowrap" }, avatar(k.provider_name, true), h("div", null, h("strong", { class: "big", text: k.provider_name }), h("div", { class: "muted", text: "Verified" }))),
+        h("div", { class: "phonebig", text: "+91 " + k.provider_mobile }),
+        h("div", { class: "row two" },
+          h("a", { class: "btn", href: A.telUrl(k.provider_mobile), text: T("Call") }),
+          h("a", { class: "btn ghost", href: wa, target: "_blank", rel: "noopener", text: T("WhatsApp") })),
+        h("a", { class: "btn outline", href: dirs, target: "_blank", rel: "noopener", text: T("Get directions to studio") })),
+      h("section", { class: "panel" }, h("dl", { class: "kv wide" },
+        h("dt", { text: T("Agreed price") }), h("dd", { text: A.inr(k.amount) }),
+        h("dt", { text: "Package" }), h("dd", { text: k.package || "–" }),
+        h("dt", { text: "Shoot date" }), h("dd", { text: A.date(k.event_date) }),
+        h("dt", { text: "Delivery by" }), h("dd", { text: k.delivered_at ? "Delivered " + A.date(k.delivered_at) : A.date(k.due_at) }),
+        h("dt", { text: "Token" }), h("dd", { text: A.inr(k.token_amount) + (k.token_paid ? " recorded" : " pending") }),
+        h("dt", { text: "Balance" }), h("dd", { text: A.inr(balance) + " on shoot day" }))),
+      h("ol", { class: "steps", "aria-label": "Booking status" },
+        h("li", { class: "on", text: "Confirmed" }), h("li", { class: done ? "on" : "", text: "Shoot done" }), h("li", { class: "", text: "Photos & review" })),
+      h("button", { class: "btn ghost", type: "button", text: T("Report a problem"), onclick: function () { reportSheet(k); } })));
   }
 
   function reportSheet(k) {
@@ -268,7 +377,7 @@
 
   // ---------- Me ----------
   async function renderMe(view) {
-    view.appendChild(h("h1", { text: "Me" }));
+    view.appendChild(h("div", { class: "row between" }, h("h1", { text: T("Me") }), langSeg()));
     var name = h("input", { id: "mn", type: "text", maxlength: "60", value: me.name });
     view.appendChild(h("div", { class: "stack" },
       h("label", { for: "mn", text: "Your name" }, name),
